@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+  <!--  appenders  -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <Target>System.out</Target>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%p] [%c] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+  </appender>
+  <appender name="COMMON-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Append>true</Append>
+    <File>logs/mogutalk.log</File> 
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+    	<fileNamePattern>logs/%d{yyyyMMdd}/mogutalk.log</fileNamePattern>
+    	<maxHistory>60</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%p] [%c] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+  </appender>
+  <appender name="COMMON-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Append>true</Append>
+    <File>logs/mogutalk-error.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+    	<fileNamePattern>logs/%d{yyyyMMdd}/mogutalk-error.log</fileNamePattern>
+    	<maxHistory>60</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%p] [%c] - %m%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>ERROR</level>
+    </filter>
+  </appender>
+  <appender name="NONE-FILTER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Append>true</Append>
+    <File>logs/mogutalk-nonefiltered.log</File> 
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+    	<fileNamePattern>logs/%d{yyyyMMdd}/mogutalk-nonefiltered.log</fileNamePattern>
+    	<maxHistory>60</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%p] [%c] - %m%n</pattern>
+    </encoder>
+    <filter class="com.mogujie.ares.lib.logger.NoneFilteredLoggerFilter">
+    </filter>
+  </appender>
+  <appender name="CONNECTION-KEEP-ALIVE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <Append>true</Append>
+    <File>logs/mogutalk-connection.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+    	<fileNamePattern>logs/%d{yyyyMMdd}/mogutalk-connection.log</fileNamePattern>
+    	<maxHistory>60</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%p] [%c] - %m%n</pattern>
+    </encoder>
+    <filter class="com.mogujie.ares.lib.logger.ConnectionKeepAliveFilter">
+    </filter>
+  </appender>
+  
+  <root level="debug">
+    <appender-ref ref="${log.std}"/>
+    <appender-ref ref="COMMON-INFO"/>
+    <appender-ref ref="COMMON-ERROR"/>
+    <appender-ref ref="CONNECTION-KEEP-ALIVE"/>
+    <appender-ref ref="NONE-FILTER"/>
+  </root>
+</configuration>

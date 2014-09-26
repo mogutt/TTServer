@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks>
+	<task>
+		<name>com.mogujie.ares.timer.ConfigureReloadTask</name>
+		<enable>0</enable>
+		<taskType>rateTask</taskType>
+		<initdelay>3</initdelay>
+		<periodordelay>3</periodordelay>
+	</task>
+</tasks>

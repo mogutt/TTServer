@@ -1,0 +1,2 @@
+java -server -Djava.ext.dirs=./ -Xmx2048M -Xms2048M -Xmn128M -XX:PermSize=64m -XX:MaxPermSize=128m  -XX:+UseCompressedOops -XX:+UseParallelOldGC -verbose:gc -XX:+PrintGCTimeStamps -XX:+PrintHeapAtGC -XX:+PrintGCDetails -Xloggc:/tmp/mogutalk-gc.log -XX:+HeapDumpOnOutOfMemoryError -Djava.io.tmpdir=/tmp -XX:HeapDumpPath=/tmp/oom.heapdump -jar  ./mogutalk-business-0.0.1-SNAPSHOT.jar $1 > mogutalk.log & 
+echo $! > ./mogutalk.pid
