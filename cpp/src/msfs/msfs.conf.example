@@ -1,0 +1,7 @@
+ListenIP=		#可以监听多个IP,用;分割
+ListenPort=
+BaseDir=
+FileCnt=0
+FilesPerDir=30000
+GetThreadCount=32
+PostThreadCount=1
