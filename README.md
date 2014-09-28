@@ -23,6 +23,7 @@ TTServer主要包含了以下几种服务器:
 
 ###系统结构图
 
+![](https://github.com/mogutt/TTServer/blob/master/docs/server.png)
 
 
 ###后续可考虑的功能
