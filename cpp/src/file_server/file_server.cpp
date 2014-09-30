@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
 
 	CConfigFileReader config_file("fileserver.conf");
 
-	char* listen_ip = config_file.GetConfigName("ListenIP");
+	char* listen_ip = config_file.GetConfigName("Address");
 	char* str_listen_port = config_file.GetConfigName("ListenPort");
     char* str_task_timeout = config_file.GetConfigName("TaskTimeout");
 
