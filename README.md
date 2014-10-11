@@ -46,4 +46,10 @@ TTServer主要包含了以下几种服务器:
 
 
 ###java编译
+— 编译整个项目可以运行与src同目录的packageproduct.sh, sh packageproduct.sh
 
+###java使用
+— 程序启动可以运行与src同目录的startup.sh, sh startup.sh 10400(其中10400为绑定的端口号)
+
+###java部署方案
+- 部署方案详见https://github.com/mogutt/TTAutoDeploy 之IM_SERVER模块
