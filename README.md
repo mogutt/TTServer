@@ -33,4 +33,17 @@ TTServer主要包含了以下几种服务器:
 - 其他合理的酷炫功能点
 
 
+###C++编译
+- 整体编译:可以运行src/目录下的build.sh脚本,例如: ./build.sh version 0.0.1
+- 单个模块编译:进入各自的目录,然后执行make即可,注意:base模块需要优先编译
+
+###C++使用
+- 程序启动请使用run.sh脚本,例如: ./run.sh msg_server
+- 程序重启请使用restart.sh脚本,例如: ./restart.sh msg_server
+
+###C++部署方案
+- 部署方案详见https://github.com/mogutt/TTAutoDeploy 之IM_SERVER模块
+
+
+###java编译
 
