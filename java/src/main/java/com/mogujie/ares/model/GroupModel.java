@@ -21,7 +21,7 @@ import com.mogujie.ares.manager.DBManager.DBPoolName;
 import com.mogujie.ares.util.MoguUtil;
 
 public class GroupModel {
-    private static Logger logger = LoggerFactory.getLogger(GroupModel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GroupModel.class);
     private static GroupModel instance = new GroupModel();
 
     public static GroupModel getInstance() {
@@ -125,10 +125,7 @@ public class GroupModel {
         } finally {
             dbManager.release(DBPoolName.macim_slave, conn, statement, rs);
         }
-        if (deletCount > 0) { // 成功
-            return true;
-        }
-        return false;
+        return deletCount > 0;
     }
 
     /*
@@ -468,7 +465,7 @@ public class GroupModel {
             String avatar, String adesc, int[] memberUserIds)
             throws SQLException {
 
-        logger.info("create group by userId : " + createUserId
+        LOGGER.info("create group by userId : " + createUserId
                 + ", groupName : " + groupName + ", groupType : " + groupType
                 + ", avatar : " + avatar + ", adesc : " + adesc
                 + ", memberUserIds : " + Arrays.toString(memberUserIds));
@@ -519,7 +516,7 @@ public class GroupModel {
                 if (rs != null && rs.next()) {
                     groupId = rs.getInt(1);
                     group.setGroupId(groupId);
-                    logger.info("seisei create group success! groupId:"
+                    LOGGER.info("seisei create group success! groupId:"
                             + groupId);
                 }
             }
@@ -530,7 +527,7 @@ public class GroupModel {
         }
         if (group.getGroupId() > 0) { // 成功
 
-            logger.info("create group success! groupId : " + group.getGroupId()
+            LOGGER.info("create group success! groupId : " + group.getGroupId()
                     + "createUserId : " + createUserId + ", groupName : "
                     + groupName + ", groupType : " + groupType + ", avatar : "
                     + avatar + ", adesc : " + adesc + ", memberUserIds : "
@@ -539,7 +536,7 @@ public class GroupModel {
             return group;
         }
 
-        logger.info("create group error! createUserId : " + createUserId
+        LOGGER.info("create group error! createUserId : " + createUserId
                 + ", groupName : " + groupName + ", groupType : " + groupType
                 + ", avatar : " + avatar + ", adesc : " + adesc
                 + ", memberUserIds : " + Arrays.toString(memberUserIds));
@@ -557,7 +554,7 @@ public class GroupModel {
     public boolean joinGroup(int[] userIds, int groupId, Group group)
             throws SQLException {
 
-        logger.info("seisei join group! groupId:" + groupId);
+        LOGGER.info("seisei join group! groupId:" + groupId);
         if (userIds == null || userIds.length <= 0 || groupId <= 0) {
             return false;
         }
@@ -577,7 +574,7 @@ public class GroupModel {
         int time = (int) (System.currentTimeMillis() / 1000);
         int countAddedNum = 0;
         try {
-            logger.info("seisei join group! select phase");
+            LOGGER.info("seisei join group! select phase");
             String selectClause = MoguUtil.getArgsHolder(mapUserIds.size());
             String sqlGetRelation = "select * from IMGroupRelation where groupId = ? and userId in (";
             sqlGetRelation += selectClause + ") group by userId order by id";
@@ -611,7 +608,7 @@ public class GroupModel {
             int insertSize = mapUserIds.size();
             int insertCount = 0;
             if (insertSize > 0) {
-                logger.info("seisei join group! add phase");
+                LOGGER.info("seisei join group! add phase");
                 String addClause = MoguUtil.getArgsHolder("(?, ?, ?, ?, ?, ?)",
                         ",", insertSize);
                 String sqlAddRelation = "insert into IMGroupRelation(`groupId`, `userId`, `title`, `groupType`, `created`, `updated`) "
@@ -636,7 +633,7 @@ public class GroupModel {
             int updateSize = updateUids.size();
             int updateCount = 0;
             if (updateSize > 0) {
-                logger.info("seisei join group! update phase");
+                LOGGER.info("seisei join group! update phase");
                 String updateClause = MoguUtil.getArgsHolder(insertSize);
                 String sqlUpdateRelation = "update IMGroupRelation set status = 1 where groupId = ? and userId in (";
                 sqlUpdateRelation += updateClause + ")";
@@ -653,7 +650,7 @@ public class GroupModel {
             // 更新群计数
             countAddedNum = insertCount + updateCount;
             if (countAddedNum > 0) {
-                logger.info("seisei join group! update count phase");
+                LOGGER.info("seisei join group! update count phase");
                 String sqlUpdateMemberCnt = "update IMGroup set memberCnt = memberCnt + ? where groupId = ? limit 1";
                 statement = conn.prepareStatement(sqlUpdateMemberCnt);
                 statement.setInt(1, countAddedNum);
@@ -665,10 +662,7 @@ public class GroupModel {
         } finally {
             dbManager.release(DBPoolName.macim_master, conn, statement, rs);
         }
-        if (countAddedNum > 0) { // 成功
-            return true;
-        }
-        return false;
+        return countAddedNum > 0;
     }
 
     /*
@@ -730,10 +724,7 @@ public class GroupModel {
         } finally {
             dbManager.release(DBPoolName.macim_master, conn, statement, rs);
         }
-        if (updateCount > 0) { // 成功
-            return true;
-        }
-        return false;
+        return updateCount > 0;
     }
 
     /*
@@ -783,10 +774,7 @@ public class GroupModel {
             dbManager.release(DBPoolName.macim_master, conn, statement, rs);
         }
 
-        if (countUpdate > 0) { // 成功
-            return true;
-        }
-        return false;
+        return countUpdate > 0;
     }
 
     /*
@@ -876,10 +864,7 @@ public class GroupModel {
         } finally {
             dbManager.release(DBPoolName.macim_master, conn, statement, rs);
         }
-        if (countDelete > 0) { // 成功
-            return true;
-        }
-        return false;
+        return countDelete > 0;
     }
 
     /*

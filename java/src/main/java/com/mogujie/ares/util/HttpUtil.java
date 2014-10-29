@@ -26,7 +26,7 @@ import com.mogujie.ares.lib.net.IMHttpResponse;
 
 public class HttpUtil {
 	
-	private static Logger logger = LoggerFactory.getLogger(HttpUtil.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(HttpUtil.class);
 
 	public static IMHttpResponse get(String url) {
 		IMHttpResponse response = new IMHttpResponse();
@@ -52,7 +52,7 @@ public class HttpUtil {
 			response.setResponseBody(responseString);
 			return response;
 		} catch (Exception e) {
-			logger.error("error code: " + statusCode, e);
+			LOGGER.error("error code: " + statusCode, e);
 		} finally {
 			if(httpGet != null) {
 				httpGet.releaseConnection();
@@ -99,7 +99,7 @@ public class HttpUtil {
 			response.setResponseBody(responseString);
 			return response;
 		} catch(Exception e) {
-			logger.error("url: " + url, e);
+			LOGGER.error("url: " + url, e);
 		} finally {
 			if(httpPost != null) {
 				httpPost.releaseConnection();
