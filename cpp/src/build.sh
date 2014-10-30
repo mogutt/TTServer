@@ -1,3 +1,4 @@
+#!/bin/bash
 build() {
 	echo "#ifndef __VERSION_H__" > base/version.h
 	echo "#define __VERSION_H__" >> base/version.h
