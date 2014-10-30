@@ -38,7 +38,7 @@ TTServer主要包含了以下几种服务器:
 - 单个模块编译:进入各自的目录,然后执行make即可,注意:base模块需要优先编译
 
 ###C++使用
-- 程序启动请使用run.sh脚本,例如: ./run.sh msg_server
+- 程序启动请使用run.sh脚本,例如: ./run.sh start
 - 程序重启请使用restart.sh脚本,例如: ./restart.sh msg_server
 
 ###C++部署方案
