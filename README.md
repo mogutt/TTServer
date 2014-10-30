@@ -8,7 +8,7 @@ TeamTalk是一套开源的企业办公即时通讯软件，作为整套系统的
 
 TTServer主要包含了以下几种服务器:
 
-- LoginServer (C++): 登录服务器，随机分配一个MsgServer给客户端使用
+- LoginServer (C++): 登录服务器，分配一个负载小的MsgServer给客户端使用
 - MsgServer (C++):  消息服务器，提供客户端大部分信令处理功能，包括私人聊天、群组聊天等
 - RouteServer (C++):  路由服务器，为登录在不同MsgServer的用户提供消息转发功能
 - FileServer (C++): 文件服务器，提供客户端之间得文件传输服务，支持在线以及离线文件传输
