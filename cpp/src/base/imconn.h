@@ -58,6 +58,5 @@ typedef hash_map<uint32_t, CImConn*> UserMap_t;
 typedef hash_map<uint32_t, uint32_t> UserConnCntMap_t;
 
 void imconn_callback(void* callback_data, uint8_t msg, uint32_t handle, void* pParam);
-void ReadPolicyFile();
 
 #endif /* IMCONN_H_ */
