@@ -29,7 +29,7 @@ char* CConfigFileReader::GetConfigName(const char* name)
 
 	if(it != m_config_map->end())
 	{
-		value = it->second.c_str();
+		value = (char*)it->second.c_str();
 	}
 
 	return value;
