@@ -25,15 +25,11 @@ char* CConfigFileReader::GetConfigName(const char* name)
 		return NULL;
 
 	char* value = NULL;
-	map<string, string>::iterator it = m_config_map->begin();
-	for ( ; it != m_config_map->end(); it++)
+	map<string, string>::iterator it = m_config_map->find(name);
+
+	if(it != m_config_map->end())
 	{
-		const char* key = it->first.c_str();
-		if (strcmp(key, name) == 0)
-		{
-			value = (char*)it->second.c_str();
-			break;
-		}
+		value = (char*)it->second.c_str();
 	}
 
 	return value;
