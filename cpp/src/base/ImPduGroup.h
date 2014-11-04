@@ -19,7 +19,6 @@
 #define IM_PDU_TYPE_CLIENT_GROUP_UNREAD_MSG_CNT_REQUEST		404
 #define IM_PDU_TYPE_CLIENT_GROUP_UNREAD_MSG_CNT_RESPONSE	405
 #define IM_PDU_TYPE_CLIENT_GROUP_UNREAD_MSG_REQUEST			406
-#define IM_PDU_TYPE_CLIENT_GROUP_HISTORY_MSG_REQUEST		407
 #define IM_PDU_TYPE_CLIENT_GROUP_MSG_LIST_RESPONSE			408
 #define IM_PDU_TYPE_CLIENT_GROUP_MSG_READ_ACK				409
 #define IM_PDU_TYPE_CLIENT_GROUP_CREATE_TMP_GROUP_REQUEST	410
@@ -40,7 +39,6 @@
 #define IM_PDU_TYPE_GROUP_UNREAD_MSG_CNT_REQUEST	304
 #define IM_PDU_TYPE_GROUP_UNREAD_MSG_CNT_RESPONSE	305
 #define IM_PDU_TYPE_GROUP_UNREAD_MSG_REQUEST		306
-#define IM_PDU_TYPE_GROUP_HISTORY_MSG_REQUEST		307
 #define IM_PDU_TYPE_GROUP_MSG_LIST_RESPONSE			308
 #define IM_PDU_TYPE_GROUP_MSG_READ_ACK				309
 #define IM_PDU_TYPE_GROUP_CREATE_TMP_GROUP_REQUEST	310
@@ -229,25 +227,6 @@ public:
 private:
 	uint32_t 	m_group_id_len;
 	char* 	 	m_group_id_url;
-};
-
-class DLL_MODIFIER CImPduClientGroupHistoryMsgRequest : public CImPdu
-{
-public:
-	CImPduClientGroupHistoryMsgRequest(uchar_t* buf, uint32_t len);
-	CImPduClientGroupHistoryMsgRequest(const char* group_id_url, uint32_t msg_offset, uint32_t msg_count);
-	virtual ~CImPduClientGroupHistoryMsgRequest() {}
-
-	virtual uint16_t GetPduType() { return IM_PDU_TYPE_CLIENT_GROUP_HISTORY_MSG_REQUEST; }
-	uint32_t GetGroupIdLen() { return m_group_id_len; }
-	char* GetGroupIdUrl() { return m_group_id_url; }
-	uint32_t GetMsgOffset() { return m_msg_offset; }
-	uint32_t GetMsgCount() { return m_msg_count; }
-private:
-	uint32_t	m_group_id_len;
-	char*		m_group_id_url;
-	uint32_t	m_msg_offset;
-	uint32_t	m_msg_count;
 };
 
 class DLL_MODIFIER CImPduClientGroupMsgListResponse : public CImPdu
@@ -508,7 +487,7 @@ private:
 class CImPduGroupUnreadMsgCntRequest : public CImPdu
 {
 public:
-	CImPduGroupUnreadMsgCntRequest(uint32_t req_user_id, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
+	CImPduGroupUnreadMsgCntRequest(uint32_t req_user_id, uint32_t client_type, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
 	virtual ~CImPduGroupUnreadMsgCntRequest() {}
 
 	virtual uint16_t GetPduType() { return IM_PDU_TYPE_GROUP_UNREAD_MSG_CNT_REQUEST; }
@@ -537,21 +516,11 @@ private:
 class CImPduGroupUnreadMsgRequest : public CImPdu
 {
 public:
-	CImPduGroupUnreadMsgRequest(uint32_t req_user_id, uint32_t group_id,
+	CImPduGroupUnreadMsgRequest(uint32_t req_user_id, uint32_t group_id, uint32_t client_type,
 			uint32_t attach_len = 0, uchar_t* attach_data = NULL);
 	virtual ~CImPduGroupUnreadMsgRequest() {}
 
 	virtual uint16_t GetPduType() { return IM_PDU_TYPE_GROUP_UNREAD_MSG_REQUEST; }
-};
-
-class CImPduGroupHistoryMsgRequest : public CImPdu
-{
-public:
-	CImPduGroupHistoryMsgRequest(uint32_t req_user_id, uint32_t group_id, uint32_t msg_offset,
-			uint32_t msg_count, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
-	virtual ~CImPduGroupHistoryMsgRequest() {}
-
-	virtual uint16_t GetPduType() { return IM_PDU_TYPE_GROUP_HISTORY_MSG_REQUEST; }
 };
 
 class CImPduGroupMsgListResponse : public CImPdu
@@ -581,7 +550,7 @@ public:
 class CImPduGroupMsgReadAck : public CImPdu
 {
 public:
-	CImPduGroupMsgReadAck(uint32_t req_user_id, uint32_t group_id);
+	CImPduGroupMsgReadAck(uint32_t req_user_id, uint32_t group_id, uint32_t client_type);
 	virtual ~CImPduGroupMsgReadAck() {}
 
 	virtual uint16_t GetPduType() { return IM_PDU_TYPE_GROUP_MSG_READ_ACK; }

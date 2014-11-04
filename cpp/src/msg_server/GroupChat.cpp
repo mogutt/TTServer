@@ -210,7 +210,7 @@ void CGroupChat::HandleClientGroupMessage(CImPduClientMsgData* pPdu, CMsgConn* p
 
 	uint32_t cur_time = time(NULL);
 	CImPduMsgData msg_pdu(pPdu->GetSeqNo(), from_user_id, to_group_id, cur_time, msg_type,
-			pPdu->GetMsgLen(), pPdu->GetMsgData(), pPdu->GetAttachLen(), pPdu->GetAttachData());
+			pPdu->GetMsgLen(), pPdu->GetMsgData(), pFromConn->GetClientType(), pPdu->GetAttachLen(), pPdu->GetAttachData());
 
 	// send to DB storage server
 	CDBServConn* pDbConn = get_db_serv_conn();
@@ -295,7 +295,8 @@ void CGroupChat::HandleClientGroupUnreadMsgCntRequest(CImPduClientGroupUnreadMsg
 	CDBServConn* pDbConn = get_db_serv_conn();
 	if (pDbConn) {
         CDbAttachData attach_data(ATTACH_TYPE_HANDLE, pFromConn->GetHandle(), 0);
-		CImPduGroupUnreadMsgCntRequest pdu(req_user_id, attach_data.GetLength(), attach_data.GetBuffer());
+		CImPduGroupUnreadMsgCntRequest pdu(req_user_id, pFromConn->GetClientType(),
+                            attach_data.GetLength(), attach_data.GetBuffer());
 		pdu.SetReserved(pPdu->GetReserved());
 		pDbConn->SendPdu(&pdu);
 	} else {
@@ -331,28 +332,8 @@ void CGroupChat::HandleClientGroupUnreadMsgRequest(CImPduClientGroupUnreadMsgReq
 	CDBServConn* pDbConn = get_db_serv_conn();
 	if (pDbConn) {
         CDbAttachData attach_data(ATTACH_TYPE_HANDLE, pFromConn->GetHandle(), 0);
-		CImPduGroupUnreadMsgRequest pdu(req_user_id, group_id, attach_data.GetLength(),
-                                        attach_data.GetBuffer());
-		pdu.SetReserved(pPdu->GetReserved());
-		pDbConn->SendPdu(&pdu);
-	}
-}
-
-void CGroupChat::HandleClientGroupHistoryMsgRequest(CImPduClientGroupHistoryMsgRequest* pPdu, CMsgConn* pFromConn)
-{
-	uint32_t req_user_id = pFromConn->GetUserId();
-	string group_id_url(pPdu->GetGroupIdUrl(), pPdu->GetGroupIdLen());
-	uint32_t group_id = urltoid(group_id_url.c_str());
-	uint32_t msg_offset = pPdu->GetMsgOffset();
-	uint32_t msg_count = pPdu->GetMsgCount();
-	log("HandleClientGroupHistoryMsgReq, req_user_id=%u, group_id=%u, (%u, %u)\n",
-			req_user_id, group_id, msg_offset, msg_count);
-
-	CDBServConn* pDbConn = get_db_serv_conn();
-	if (pDbConn) {
-        CDbAttachData attach_data(ATTACH_TYPE_HANDLE, pFromConn->GetHandle(), 0);
-		CImPduGroupHistoryMsgRequest pdu(req_user_id, group_id, msg_offset, msg_count,
-                                         attach_data.GetLength(), attach_data.GetBuffer());
+		CImPduGroupUnreadMsgRequest pdu(req_user_id, group_id, pFromConn->GetClientType(),
+                attach_data.GetLength(), attach_data.GetBuffer());
 		pdu.SetReserved(pPdu->GetReserved());
 		pDbConn->SendPdu(&pdu);
 	}
@@ -372,9 +353,6 @@ void CGroupChat::HandleGroupMsgListResponse(CImPduGroupMsgListResponse* pPdu)
                                                                            attach_data.GetHandle());
 	if (pMsgConn) {
 		uint32_t cmd_id = CID_GROUP_UNREAD_MSG_RESPONSE;
-		if (req_cmd_id == IM_PDU_TYPE_GROUP_HISTORY_MSG_REQUEST) {
-			cmd_id = CID_GROUP_HISTORY_MSG_RESPONSE;
-		}
 
 		string group_id_url = idtourl(group_id);
 		CImPduClientGroupMsgListResponse pdu(cmd_id, group_id_url.c_str(), msg_cnt, msg_list);
@@ -392,7 +370,7 @@ void CGroupChat::HandleClientGroupMsgReadAck(CImPduClientGroupMsgReadAck* pPdu, 
 
 	CDBServConn* pDbConn = get_db_serv_conn();
 	if (pDbConn) {
-		CImPduGroupMsgReadAck pdu(req_user_id, group_id);
+		CImPduGroupMsgReadAck pdu(req_user_id, group_id, pFromConn->GetClientType());
 		pdu.SetReserved(pPdu->GetReserved());
 		pDbConn->SendPdu(&pdu);
 	}

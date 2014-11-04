@@ -35,7 +35,7 @@ public:
 	void HandleGroupUnreadMsgCntResponse(CImPduGroupUnreadMsgCntResponse* pPdu);
 
 	void HandleClientGroupUnreadMsgRequest(CImPduClientGroupUnreadMsgRequest* pPdu, CMsgConn* pFromConn);
-	void HandleClientGroupHistoryMsgRequest(CImPduClientGroupHistoryMsgRequest* pPdu, CMsgConn* pFromConn);
+	
 	void HandleGroupMsgListResponse(CImPduGroupMsgListResponse* pPdu);
 
 	void HandleClientGroupMsgReadAck(CImPduClientGroupMsgReadAck* pPdu, CMsgConn* pFromConn);

@@ -57,7 +57,6 @@ private:
 	void _HandleClientTimeRequest(CImPduClientTimeRequest* pPdu);
 	void _HandleClientUnreadMsgCntRequest(CImPduClientUnreadMsgCntRequest* pPdu);
 	void _HandleClientUnreadMsgRequest(CImPduClientUnreadMsgRequest* pPdu);
-	void _HandleClientHistoryMsgRequest(CImPduClientHistoryMsgRequest* pPdu);
 	void _HandleClientMsgReadAck(CImPduClientMsgReadAck* pPdu);
 	void _HandleClientP2PCmdMsg(CImPduClientP2PCmdMsg* pPdu);
 	void _HandleClientUserInfoRequest(CImPduClientUserInfoRequest* pPdu);

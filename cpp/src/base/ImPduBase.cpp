@@ -236,11 +236,7 @@ CImPdu* CImPdu::ReadPduGroup(uint16_t command_id, uchar_t* pdu_buf, uint32_t pdu
 	case CID_GROUP_UNREAD_MSG_REQUEST:
 		pPdu = new CImPduClientGroupUnreadMsgRequest(pdu_buf, pdu_len);
 		break;
-	case CID_GROUP_HISTORY_MSG_REQUEST:
-		pPdu = new CImPduClientGroupHistoryMsgRequest(pdu_buf, pdu_len);
-		break;
 	case CID_GROUP_UNREAD_MSG_RESPONSE:
-	case CID_GROUP_HISTORY_MSG_RESPONSE:
 		pPdu = new CImPduClientGroupMsgListResponse(pdu_buf, pdu_len);
 		break;
 	case CID_GROUP_MSG_READ_ACK:
@@ -299,11 +295,7 @@ CImPdu* CImPdu::ReadPduMsg(uint16_t command_id, uchar_t* pdu_buf, uint32_t pdu_l
 	case CID_MSG_UNREAD_MSG_REUQEST:
 		pPdu = new CImPduClientUnreadMsgRequest(pdu_buf, pdu_len);
 		break;
-	case CID_MSG_HISTORY_MSG_REQUEST:
-		pPdu = new CImPduClientHistoryMsgRequest(pdu_buf, pdu_len);
-		break;
 	case CID_MSG_UNREAD_MSG_RESPONSE:
-	case CID_MSG_HISTORY_MSG_RESPONSE:
 		pPdu = new CImPduClientMsgListResponse(pdu_buf, pdu_len);
 		break;
 	default:
@@ -479,6 +471,9 @@ CImPdu* CImPdu::ReadPduOther(uint16_t command_id, uchar_t* pdu_buf, uint32_t pdu
         break;
 
 	// Message Server Internal Packet
+    case IM_PDU_TYPE_USER_CONN_INFO:
+        pPdu = new CImPduUserConnInfo(pdu_buf, pdu_len);
+        break;
 	case IM_PDU_TYPE_ROLE_SET:
 		pPdu = new CImPduRoleSet(pdu_buf, pdu_len);
 		break;

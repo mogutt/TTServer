@@ -675,31 +675,6 @@ CImPduClientUnreadMsgRequest::CImPduClientUnreadMsgRequest(const char* from_id_u
 	WriteHeader();
 }
 
-CImPduClientHistoryMsgRequest::CImPduClientHistoryMsgRequest(uchar_t* buf, uint32_t len)
-{
-	ReadPduHeader(buf, IM_PDU_HEADER_LEN, &m_pdu_header);
-	CByteStream is(buf + IM_PDU_HEADER_LEN, len - IM_PDU_HEADER_LEN);
-
-	m_from_id_url = is.ReadString(m_from_id_len);
-	is >> m_msg_offset;
-	is >> m_msg_count;
-	PARSE_PACKET_ASSERT
-}
-
-CImPduClientHistoryMsgRequest::CImPduClientHistoryMsgRequest(const char* from_id_url,
-		uint32_t msg_offset, uint32_t msg_count)
-{
-	m_pdu_header.module_id = SID_MSG;
-	m_pdu_header.command_id = CID_MSG_HISTORY_MSG_REQUEST;
-	CByteStream os(&m_buf, IM_PDU_HEADER_LEN);
-	m_buf.Write(NULL, IM_PDU_HEADER_LEN);
-
-	os.WriteString(from_id_url);
-	os << msg_offset;
-	os << msg_count;
-	WriteHeader();
-}
-
 CImPduClientMsgListResponse::CImPduClientMsgListResponse(uchar_t* buf, uint32_t len)
 {
 	ReadPduHeader(buf, IM_PDU_HEADER_LEN, &m_pdu_header);

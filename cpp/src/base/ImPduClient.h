@@ -41,7 +41,6 @@
 #define IM_PDU_TYPE_CLIENT_UNREAD_MSG_CNT_REQUEST	37
 #define IM_PDU_TYPE_CLIENT_UNREAD_MSG_CNT_RESPONSE	38
 #define IM_PDU_TYPE_CLIENT_UNREAD_MSG_REQUEST		39
-#define IM_PDU_TYPE_CLIENT_HISTORY_MSG_REQUEST		40
 #define IM_PDU_TYPE_CLIENT_MSG_LIST_RESPONSE		41
 #define IM_PDU_TYPE_CLIENT_DEPARTMENT_REQUEST       42
 #define IM_PDU_TYPE_CLIENT_DEPARTMENT_RESPONSE      43
@@ -544,27 +543,6 @@ public:
 private:
 	uint32_t	m_from_id_len;
 	char*		m_from_id_url;
-};
-
-//
-class DLL_MODIFIER CImPduClientHistoryMsgRequest : public CImPdu
-{
-public:
-	CImPduClientHistoryMsgRequest(uchar_t* buf, uint32_t len);
-	CImPduClientHistoryMsgRequest(const char* from_id_url, uint32_t msg_offset, uint32_t msg_count);
-	virtual ~CImPduClientHistoryMsgRequest() {}
-
-	virtual uint16_t GetPduType() { return IM_PDU_TYPE_CLIENT_HISTORY_MSG_REQUEST; }
-
-	uint32_t GetFromIdLen() { return m_from_id_len; }
-	char* GetFromIdUrl() { return m_from_id_url; }
-	uint32_t GetMsgOffset() { return m_msg_offset; }
-	uint32_t GetMsgCount() { return m_msg_count; }
-private:
-	uint32_t	m_from_id_len;
-	char*		m_from_id_url;
-	uint32_t	m_msg_offset;
-	uint32_t	m_msg_count;
 };
 
 typedef struct {

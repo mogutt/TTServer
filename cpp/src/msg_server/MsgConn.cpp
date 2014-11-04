@@ -209,10 +209,10 @@ void CMsgConn::OnTimer(uint64_t curr_tick)
 	//	SendPdu(&pdu);
 	//}
 
-    if (CLIENT_TYPE_ANDROID == GetClientType())
+    if (CHECK_CLIENT_TYPE_MOBILE(GetClientType()))
     {
-        if (curr_tick > m_last_recv_tick + ANDROID_CLIENT_TIMEOUT) {
-            log("android client timeout, handle=%d, uid=%u\n", m_handle, GetUserId());
+        if (curr_tick > m_last_recv_tick + MOBILE_CLIENT_TIMEOUT) {
+            log("mobile client timeout, handle=%d, uid=%u\n", m_handle, GetUserId());
             Close();
             return;
         }
@@ -288,9 +288,6 @@ void CMsgConn::HandlePdu(CImPdu* pPdu)
 	case IM_PDU_TYPE_CLIENT_UNREAD_MSG_REQUEST:
 		_HandleClientUnreadMsgRequest( (CImPduClientUnreadMsgRequest*)pPdu );
 		break;
-	case IM_PDU_TYPE_CLIENT_HISTORY_MSG_REQUEST:
-		_HandleClientHistoryMsgRequest( (CImPduClientHistoryMsgRequest*)pPdu );
-		break;
 	case IM_PDU_TYPE_CLIENT_MSG_READ_ACK:
 		_HandleClientMsgReadAck( (CImPduClientMsgReadAck*)pPdu );
 		break;
@@ -350,9 +347,6 @@ void CMsgConn::HandlePdu(CImPdu* pPdu)
 		break;
 	case IM_PDU_TYPE_CLIENT_GROUP_UNREAD_MSG_REQUEST:
 		s_group_chat->HandleClientGroupUnreadMsgRequest((CImPduClientGroupUnreadMsgRequest*)pPdu, this);
-		break;
-	case IM_PDU_TYPE_CLIENT_GROUP_HISTORY_MSG_REQUEST:
-		s_group_chat->HandleClientGroupHistoryMsgRequest((CImPduClientGroupHistoryMsgRequest*)pPdu, this);
 		break;
 	case IM_PDU_TYPE_CLIENT_GROUP_MSG_READ_ACK:
 		s_group_chat->HandleClientGroupMsgReadAck((CImPduClientGroupMsgReadAck*)pPdu, this);
@@ -499,7 +493,7 @@ void CMsgConn::_HandleClientMsgData(CImPduClientMsgData* pPdu)
 
 	uint32_t cur_time = time(NULL);
 	CImPduMsgData pdu(pPdu->GetSeqNo(), GetUserId(), to_user_id, cur_time, msg_type,
-			pPdu->GetMsgLen(), (uchar_t*)msg_data.c_str(), pPdu->GetAttachLen(),
+			pPdu->GetMsgLen(), (uchar_t*)msg_data.c_str(), GetClientType(),pPdu->GetAttachLen(),
                       pPdu->GetAttachData());
 
 	// send to DB storage server
@@ -550,7 +544,7 @@ void CMsgConn::_HandleClientUnreadMsgCntRequest(CImPduClientUnreadMsgCntRequest*
 	CDBServConn* pDBConn = get_db_serv_conn_for_login();
 	if (pDBConn) {
         CDbAttachData attach(ATTACH_TYPE_HANDLE, m_handle, 0);
-		CImPduUnreadMsgCountRequest pdu(GetUserId(), attach.GetLength(), attach.GetBuffer());
+		CImPduUnreadMsgCountRequest pdu(GetUserId(), GetClientType(), attach.GetLength(), attach.GetBuffer());
 		pdu.SetReserved(pPdu->GetReserved());
 		pDBConn->SendPdu(&pdu);
 	}
@@ -565,25 +559,7 @@ void CMsgConn::_HandleClientUnreadMsgRequest(CImPduClientUnreadMsgRequest* pPdu)
 	CDBServConn* pDBConn = get_db_serv_conn();
 	if (pDBConn) {
         CDbAttachData attach(ATTACH_TYPE_HANDLE, m_handle, 0);
-		CImPduUnreadMsgRequest pdu(GetUserId(), from_id, attach.GetLength(), attach.GetBuffer());
-		pdu.SetReserved(pPdu->GetReserved());
-		pDBConn->SendPdu(&pdu);
-	}
-}
-
-void CMsgConn::_HandleClientHistoryMsgRequest(CImPduClientHistoryMsgRequest* pPdu)
-{
-	string peer_id_url(pPdu->GetFromIdUrl(), pPdu->GetFromIdLen());
-	uint32_t peer_id = urltoid(peer_id_url.c_str());
-	uint32_t msg_offset = pPdu->GetMsgOffset();
-	uint32_t msg_count = pPdu->GetMsgCount();
-	log("HandleClientHistoryMsgReq, %u->%u, offset: %u, cnt: %u\n", GetUserId(), peer_id, msg_offset, msg_count);
-
-	CDBServConn* pDBConn = get_db_serv_conn();
-	if (pDBConn) {
-        CDbAttachData attach(ATTACH_TYPE_HANDLE, m_handle, 0);
-		CImPduHistoryMsgRequest pdu(GetUserId(), peer_id, msg_offset, msg_count, attach.GetLength(),
-                                    attach.GetBuffer());
+		CImPduUnreadMsgRequest pdu(GetUserId(), from_id, GetClientType(), attach.GetLength(), attach.GetBuffer());
 		pdu.SetReserved(pPdu->GetReserved());
 		pDBConn->SendPdu(&pdu);
 	}
@@ -597,7 +573,7 @@ void CMsgConn::_HandleClientMsgReadAck(CImPduClientMsgReadAck* pPdu)
 
 	CDBServConn* pDBConn = get_db_serv_conn();
 	if (pDBConn) {
-		CImPduMsgReadAck pdu(0, GetUserId(), from_id);
+		CImPduMsgReadAck pdu(0, GetUserId(), from_id, GetClientType());
 		pdu.SetReserved(pPdu->GetReserved());
 		pDBConn->SendPdu(&pdu);
 	}

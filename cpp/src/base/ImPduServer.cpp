@@ -314,6 +314,7 @@ CImPduMsgData::CImPduMsgData(uchar_t* buf, uint32_t len)
 	is >> m_create_time;
 	is >> m_msg_type;
 	m_msg_data = is.ReadData(m_msg_len);
+    is >> m_client_type;
 	m_attach_data = is.ReadString(m_attach_len);
 
 	PARSE_PACKET_ASSERT
@@ -322,7 +323,7 @@ CImPduMsgData::CImPduMsgData(uchar_t* buf, uint32_t len)
 
 CImPduMsgData::CImPduMsgData(uint32_t request_id,  uint32_t from_user_id, uint32_t to_user_id,
 		uint32_t create_time, uint8_t msg_type, uint32_t msg_len, uchar_t* msg_data,
-		uint32_t attach_len, char* attach_data)
+		uint32_t client_type, uint32_t attach_len, char* attach_data)
 {
 	m_pdu_header.command_id = IM_PDU_TYPE_MSG_DATA;
 	m_msg_data = NULL;
@@ -335,18 +336,20 @@ CImPduMsgData::CImPduMsgData(uint32_t request_id,  uint32_t from_user_id, uint32
 	os << create_time;
 	os << msg_type;
 	os.WriteData(msg_data, msg_len);
+    os << client_type;
 	os.WriteString(attach_data, attach_len);
 
 	WriteHeader();
 }
 
-CImPduUnreadMsgCountRequest::CImPduUnreadMsgCountRequest(uint32_t user_id, uint32_t attach_len, uchar_t* attach_data)
+CImPduUnreadMsgCountRequest::CImPduUnreadMsgCountRequest(uint32_t user_id, uint32_t client_type, uint32_t attach_len, uchar_t* attach_data)
 {
 	m_pdu_header.command_id = IM_PDU_TYPE_UNREAD_MSG_COUNT_REQUEST;
 	CByteStream os(&m_buf, IM_PDU_HEADER_LEN);
 	m_buf.Write(NULL, IM_PDU_HEADER_LEN);
 
 	os << user_id;
+    os << client_type;
 	os.WriteData(attach_data, attach_len);
 	WriteHeader();
 }
@@ -384,7 +387,7 @@ CImPduUnreadMsgCountResponse::~CImPduUnreadMsgCountResponse()
 }
 
 CImPduUnreadMsgRequest::CImPduUnreadMsgRequest(uint32_t from_user_id, uint32_t to_user_id,
-		uint32_t attach_len, uchar_t* attach_data)
+                uint32_t client_type, uint32_t attach_len, uchar_t* attach_data)
 {
 	m_pdu_header.command_id = IM_PDU_TYPE_UNREAD_MSG_REQUEST;
 	CByteStream os(&m_buf, IM_PDU_HEADER_LEN);
@@ -392,21 +395,7 @@ CImPduUnreadMsgRequest::CImPduUnreadMsgRequest(uint32_t from_user_id, uint32_t t
 
 	os << from_user_id;
 	os << to_user_id;
-	os.WriteData(attach_data, attach_len);
-	WriteHeader();
-}
-
-CImPduHistoryMsgRequest::CImPduHistoryMsgRequest(uint32_t from_user_id, uint32_t to_user_id,
-		uint32_t msg_offset, uint32_t msg_count, uint32_t attach_len, uchar_t* attach_data)
-{
-	m_pdu_header.command_id = IM_PDU_TYPE_HISTORY_MSG_REQUEST;
-	CByteStream os(&m_buf, IM_PDU_HEADER_LEN);
-	m_buf.Write(NULL, IM_PDU_HEADER_LEN);
-
-	os << from_user_id;
-	os << to_user_id;
-	os << msg_offset;
-	os << msg_count;
+    os << client_type;
 	os.WriteData(attach_data, attach_len);
 	WriteHeader();
 }
@@ -449,7 +438,7 @@ CImPduMsgListResponse::~CImPduMsgListResponse()
 	}
 }
 
-CImPduMsgReadAck::CImPduMsgReadAck(uint32_t request_id, uint32_t from_user_id, uint32_t to_user_id)
+CImPduMsgReadAck::CImPduMsgReadAck(uint32_t request_id, uint32_t from_user_id, uint32_t to_user_id, uint32_t client_type)
 {
 	m_pdu_header.command_id = IM_PDU_TYPE_MSG_READ_ACK;
 	CByteStream os(&m_buf, IM_PDU_HEADER_LEN);
@@ -458,6 +447,7 @@ CImPduMsgReadAck::CImPduMsgReadAck(uint32_t request_id, uint32_t from_user_id, u
 	os << request_id;
 	os << from_user_id;
 	os << to_user_id;
+    os << client_type;
 	WriteHeader();
 }
 
@@ -657,12 +647,18 @@ CImPduUserConnInfo::CImPduUserConnInfo(list<user_conn_t>* user_conn_list) {
 	CByteStream os(&m_buf, IM_PDU_HEADER_LEN);
 	m_buf.Write(NULL, IM_PDU_HEADER_LEN);
     
-	os << (uint32_t) user_conn_list->size();
-	for (list<user_conn_t>::iterator it = user_conn_list->begin();
-         it != user_conn_list->end(); it++) {
-		os << it->user_id;
-		os << it->conn_cnt;
-	}
+    if (user_conn_list != NULL) {
+        os << (uint32_t) user_conn_list->size();
+        for (list<user_conn_t>::iterator it = user_conn_list->begin(); it != user_conn_list->end();
+             it++) {
+            os << it->user_id;
+            os << it->conn_cnt;
+        }
+    }
+    else
+    {
+        os << 0;
+    }
     
 	WriteHeader();
 }

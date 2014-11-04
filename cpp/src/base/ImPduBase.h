@@ -34,8 +34,6 @@ enum {
     CID_LOGIN_RES_MSGSERVER         = 2,	//
     CID_LOGIN_REQ_USERLOGIN         = 3,	//
     CID_LOGIN_RES_USERLOGIN         = 4,	//
-    CID_LOGIN_REQ_LOGINOUT          = 5,	//
-    CID_LOGIN_RES_LOGINOUT          = 6, 	//
     CID_LOGIN_KICK_USER				= 7, 	//
 };
 
@@ -49,10 +47,8 @@ enum {
 	CID_MSG_UNREAD_CNT_REQUEST		= 7, 	//
 	CID_MSG_UNREAD_CNT_RESPONSE		= 8,	//
 	CID_MSG_UNREAD_MSG_REUQEST		= 9,	//
-	CID_MSG_HISTORY_MSG_REQUEST		= 10, 	//
 	//CID_MSG_LIST_RESPONSE			= 11,	//
 	CID_MSG_UNREAD_MSG_RESPONSE 	= 14,
-	CID_MSG_HISTORY_MSG_RESPONSE	= 15,
 };
 
 // command id for buddy list
@@ -87,8 +83,6 @@ enum {
 	CID_GROUP_UNREAD_CNT_RESPONSE	= 6,
 	CID_GROUP_UNREAD_MSG_REQUEST	= 7,
 	CID_GROUP_UNREAD_MSG_RESPONSE	= 8,
-	CID_GROUP_HISTORY_MSG_REQUEST	= 9,
-	CID_GROUP_HISTORY_MSG_RESPONSE	= 10,
 	CID_GROUP_MSG_READ_ACK			= 11,
 	CID_GROUP_CREATE_TMP_GROUP_REQUEST	= 12,
 	CID_GROUP_CREATE_TMP_GROUP_RESPONSE	= 13,
@@ -112,12 +106,6 @@ enum {
     CID_FILE_STATE                  = 3,
     CID_FILE_PULL_DATA_REQ          = 4,
     CID_FILE_PULL_DATA_RSP          = 5,
-CID_FILE_GET_OFFLINE_REQ                = 6,   
- 
-    /// yunfan add 2014.8.7
-    CID_FILE_MSG_NEW_TASK_REQ       = 20,
-    CID_FILE_MSG_NEW_TASK_RSP       = 21,
-    /// yunfan add end
 
 	// To MsgServer
 	CID_FILE_REQUEST 				= 10, // sender -> receiver

@@ -32,7 +32,6 @@
 #define IM_PDU_TYPE_UNREAD_MSG_COUNT_REQUEST	141
 #define IM_PDU_TYPE_UNREAD_MSG_COUNT_RESPONSE	142
 #define IM_PDU_TYPE_UNREAD_MSG_REQUEST			143
-#define IM_PDU_TYPE_HISTORY_MSG_REQUEST			144
 #define IM_PDU_TYPE_MSG_LIST_RESPONSE			145
 #define IM_PDU_TYPE_MSG_READ_ACK				146
 #define IM_PDU_TYPE_DB_QUERY_REQUEST			170
@@ -289,7 +288,7 @@ public:
 	CImPduMsgData(uchar_t* buf, uint32_t len);
 	CImPduMsgData(uint32_t request_id, uint32_t from_user_id, uint32_t to_user_id,
                   uint32_t create_time, uint8_t msg_type, uint32_t msg_len, uchar_t* msg_data,
-                  uint32_t attach_len, char* attach_data);
+                  uint32_t client_type, uint32_t attach_len, char* attach_data);
 	virtual ~CImPduMsgData() {}
 
 	virtual uint16_t GetPduType() { return IM_PDU_TYPE_MSG_DATA; }
@@ -301,6 +300,7 @@ public:
 	uint8_t GetMsgType() { return m_msg_type; }
 	uint32_t GetMsgLen() { return m_msg_len; }
 	uchar_t* GetMsgData() { return m_msg_data; }
+    uint32_t GetClientType() { return m_client_type; }
 	uint32_t GetAttachLen() { return m_attach_len; }
 	char* GetAttachData() { return m_attach_data; }
 private:
@@ -311,6 +311,7 @@ private:
 	uint8_t		m_msg_type;
 	uint32_t 	m_msg_len;
 	uchar_t* 	m_msg_data;
+    uint32_t    m_client_type;
 	uint32_t	m_attach_len;	// 这两项是PC client添加，不是用于HttpMsgServer
 	char*		m_attach_data;
 };
@@ -318,7 +319,7 @@ private:
 class CImPduUnreadMsgCountRequest : public CImPdu
 {
 public:
-	CImPduUnreadMsgCountRequest(uint32_t user_id, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
+	CImPduUnreadMsgCountRequest(uint32_t user_id, uint32_t client_type, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
 	virtual ~CImPduUnreadMsgCountRequest() {}
 
 	virtual uint16_t GetPduType() { return IM_PDU_TYPE_UNREAD_MSG_COUNT_REQUEST; }
@@ -347,21 +348,12 @@ private:
 class CImPduUnreadMsgRequest : public CImPdu
 {
 public:
-	CImPduUnreadMsgRequest(uint32_t from_user_id, uint32_t to_user_id, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
+	CImPduUnreadMsgRequest(uint32_t from_user_id, uint32_t to_user_id, uint32_t client_type, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
 	virtual ~CImPduUnreadMsgRequest() {}
 
 	virtual uint16_t GetPduType() { return IM_PDU_TYPE_UNREAD_MSG_REQUEST; }
 };
 
-class CImPduHistoryMsgRequest : public CImPdu
-{
-public:
-	CImPduHistoryMsgRequest(uint32_t from_user_id, uint32_t to_user_id, uint32_t msg_offset, uint32_t msg_count
-			, uint32_t attach_len = 0, uchar_t* attach_data = NULL);
-	virtual ~CImPduHistoryMsgRequest() {}
-
-	virtual uint16_t GetPduType() { return IM_PDU_TYPE_HISTORY_MSG_REQUEST; }
-};
 
 class CImPduMsgListResponse : public CImPdu
 {
@@ -390,7 +382,7 @@ private:
 class CImPduMsgReadAck : public CImPdu
 {
 public:
-	CImPduMsgReadAck(uint32_t request_id, uint32_t from_user_id, uint32_t to_user_id);
+	CImPduMsgReadAck(uint32_t request_id, uint32_t from_user_id, uint32_t to_user_id, uint32_t client_type);
 	virtual ~CImPduMsgReadAck() {}
 
 	virtual uint16_t GetPduType() { return IM_PDU_TYPE_MSG_READ_ACK; }
