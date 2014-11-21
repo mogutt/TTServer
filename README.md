@@ -30,7 +30,7 @@ TTServer主要包含了以下几种服务器:
 
 ###系统结构图
 
-![](https://github.com/mogutt/TTServer/blob/master/docs/pics/server.png)
+![](https://raw.githubusercontent.com/mogutt/TTServer/master/docs/pics/server.jpg)
 
 
 ###后续可考虑的功能
