@@ -129,7 +129,7 @@ void CGroupChat::HandleGroupUserListResponse(CImPduGroupUserListResponse* pPdu)
 
     CPduAttachData pduAttachData(attach_data, attach_len);
 
-	if (attach_len > 0) {
+	if (pduAttachData.GetPduLength() > 0) {
 		log("GroupUserListRequest is send by server, group_id=%u\n", group_id);
 
 		if (result) {
@@ -241,6 +241,7 @@ void CGroupChat::HandleClientGroupMessage(CImPduClientMsgData* pPdu, CMsgConn* p
         log("this server does not have enough group info\n");
         CPduAttachData pduAttachData(ATTACH_TYPE_HANDLE_AND_PDU, pFromConn->GetHandle(), pPdu->GetLength(), pPdu->GetBuffer());
 		CImPduGroupUserListRequest pdu(from_user_id, to_group_id, pduAttachData.GetLength(), pduAttachData.GetBuffer());
+        
 		pDbConn->SendPdu(&pdu);
 	}
 }

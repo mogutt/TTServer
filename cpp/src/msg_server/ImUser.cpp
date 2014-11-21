@@ -101,6 +101,17 @@ void CImUser::BroadcastPdu(CImPdu* pPdu, CMsgConn* pFromConn)
 	}
 }
 
+void CImUser::BroadcastPduWithOutMobile(CImPdu *pPdu, CMsgConn* pFromConn)
+{
+    for (map<string, CMsgConn*>::iterator it = m_conn_map.begin(); it != m_conn_map.end(); it++)
+    {
+        CMsgConn* pConn = it->second;
+        if (pConn != pFromConn && CHECK_CLIENT_TYPE_PC(pConn->GetClientType())) {
+            pConn->SendPdu(pPdu);
+        }
+    }
+}
+
 void CImUser::BroadcastClientMsgData(CImPduClientMsgData* pPdu, CMsgConn* pFromConn, uint32_t from_id)
 {
 	for (map<string, CMsgConn*>::iterator it = m_conn_map.begin(); it != m_conn_map.end(); it++) {

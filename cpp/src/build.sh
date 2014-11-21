@@ -1,10 +1,11 @@
 #!/bin/bash
+
 build() {
 	echo "#ifndef __VERSION_H__" > base/version.h
 	echo "#define __VERSION_H__" >> base/version.h
 	echo "#define VERSION \"$1\"" >> base/version.h
 	echo "#endif" >> base/version.h
-
+ 
 	cd base
 	make
 	cd ../login_server

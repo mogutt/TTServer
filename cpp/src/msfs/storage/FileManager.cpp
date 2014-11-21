@@ -162,6 +162,18 @@ FileManager::getOrCreateEntry(const std::string& url, bool create) {
 		m_cs.Leave();
 		return NULL;
 	}
+    
+    struct stat buf;
+    if(stat(path.c_str(), &buf) == -1)
+    {
+        return NULL;
+    }
+    
+    if(!S_ISREG(buf.st_mode))
+    {
+        return NULL;
+    }
+    
 
 	Entry *e = new Entry();
 	u64 fileSize = File::getFileSize(path.c_str());

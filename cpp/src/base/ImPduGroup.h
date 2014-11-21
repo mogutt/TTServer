@@ -102,6 +102,7 @@ typedef struct {
 	uint32_t from_user_id_len;
 	char*	 from_user_id_url;
 	uint32_t create_time;
+    uint8_t msg_type;
 	uint32_t msg_len;
 	uchar_t* msg_content;
 } client_group_msg_t;
@@ -109,6 +110,7 @@ typedef struct {
 typedef struct {
 	uint32_t from_user_id;
 	uint32_t create_time;
+    uint8_t msg_type;
 	uint32_t msg_len;
 	uchar_t* msg_content;
 } group_msg_t;

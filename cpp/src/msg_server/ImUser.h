@@ -51,6 +51,7 @@ public:
 	void SetIMOnlineStatus(uint32_t status) { m_online_status = status; }
 	void SetUser(user_info_t* user);
 	void BroadcastPdu(CImPdu* pPdu, CMsgConn* pFromConn = NULL);
+    void BroadcastPduWithOutMobile(CImPdu* pPdu, CMsgConn* pFromConn = NULL);
 	void BroadcastClientMsgData(CImPduClientMsgData* pPdu, CMsgConn* pFromConn, uint32_t from_id);
     void BroadcastData(void* buff, uint32_t len, CMsgConn* pFromConn = NULL);
     

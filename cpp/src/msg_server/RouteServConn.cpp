@@ -291,7 +291,7 @@ void CRouteServConn::_HandleFriendStatusList(CImPduFriendStatusList* pPdu)
 
 	// send online friend status list to client
 	CImPduClientOnlineFriendList pduCOFL(pPdu->GetRequestType(), friend_cnt, friend_status_list);
-    pImUser->BroadcastPdu(&pduCOFL);
+    pImUser->BroadcastPduWithOutMobile(&pduCOFL);
     
     // user don't need to send self status to friend list
 	//if (pPdu->GetRequestType() == ONLINE_LIST_TYPE_FRIEND_LIST) {
@@ -306,7 +306,7 @@ void CRouteServConn::_HandleFriendStatusList(CImPduFriendStatusList* pPdu)
         CImUser* pFriendUser = CImUserManager::GetInstance()->GetImUserById(friend_status_list[i].user_id);
 		if (pFriendUser) {
 			//log("notify %u online to %u\n", user_id, friend_status_list[i].user_id);
-            pFriendUser->BroadcastPdu(&pduCFN);
+            pFriendUser->BroadcastPduWithOutMobile(&pduCFN);
 			pFriendUser->AddOnlineFriend(user_id);
 		}
 	}
@@ -329,7 +329,7 @@ void CRouteServConn::_HandleFriendStatusNotify(CImPduFriendStatusNotify* pPdu)
 	for (uint32_t i = 0; i < friend_cnt; ++i) {
         CImUser* pImUser = CImUserManager::GetInstance()->GetImUserById(friend_id_list[i]);
 		if (pImUser) {
-			pImUser->BroadcastPdu(&pdu);
+			pImUser->BroadcastPduWithOutMobile(&pdu);
 
 			if (user_status == USER_STATUS_ONLINE) {
 				pImUser->AddOnlineFriend(user_id);

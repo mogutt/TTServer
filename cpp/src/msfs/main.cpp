@@ -107,9 +107,9 @@ void Stop(int signo)
     case SIGQUIT:
         doQuitJob();
         _exit(0);
-        break;
+            break;
     case SIGHUP:
-        break;
+            break;
     default:
         cout<< "unknown signal"<<endl;
         _exit(0);

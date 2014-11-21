@@ -6,72 +6,74 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-/* closeall() -- close all FDs >= a specified value */
-
-void closeall(int fd)
+void CloseAll(int fd)
 {
-	int fdlimit = sysconf(_SC_OPEN_MAX);
+	int fd_limit = sysconf(_SC_OPEN_MAX);
 
-	while (fd < fdlimit)
+	while (fd < fd_limit)
+    {
 		close(fd++);
+    }
 }
 
-
-/* daemon() - detach process from user and disappear into the background
-* returns -1 on failure, but you can't do much except exit in that case
-* since we may already have forked. This is based on the BSD version,
-* so the caller is responsible for things like the umask, etc.
-*/
-     
-int daemon(int nochdir, int noclose, int asroot)
+int Daemon(int no_chdir, int no_close, int root)
 {
 	switch (fork())
 	{
-		case 0:  break;
-		case -1: return -1;
-		default: _exit(0);          /* exit the original process */
+		case 0:
+            break;
+		case -1:
+            return -1;
+		default:
+            _exit(0);
 	}
 
-	if (setsid() < 0)               /* shoudn't fail */
+	if (setsid() < 0)
+    {
 		return -1;
-
-	if ( !asroot && (setuid(1) < 0) )              /* shoudn't fail */
+    }
+	if (!root && (setuid(1) < 0))
+    {
 		return -1;
-
-	/* dyke out this switch if you want to acquire a control tty in */
-	/* the future -- not normally advisable for daemons */
+    }
 
 	switch (fork())
 	{
-		case 0:  break;
-		case -1: return -1;
-		default: _exit(0);
+		case 0:
+            break;
+		case -1:
+            return -1;
+		default:
+            _exit(0);
 	}
 
-	if (!nochdir)
+	if (!no_chdir)
+    {
 		chdir("/");
+    }
 
-	if (!noclose)
+	if (!no_close)
 	{
-		closeall(0);
-		dup(0); dup(0);
+		CloseAll(0);
+		dup(0);
+        dup(0);
 	}
 
 	return 0;
 }
 
-#define TEXT(a) a
+#define PRINT(a) a
 void PrintUsage(char* name)
 {
 	printf (
-		TEXT("\n ----- \n\n")
-		TEXT("Usage:\n")
-		TEXT("   	%s program_name \n\n")
-		TEXT("Where:\n")
-		TEXT("   	%s - Name of this Daemon loader.\n")
-		TEXT("   	program_name - Name (including path) of the program you want to load as daemon.\n\n")
-		TEXT("Example:\n")
-		TEXT("   	%s ./atprcmgr - Launch program 'atprcmgr' in current directory as daemon. \n\n\n\n"),
+		PRINT("\n ----- \n\n")
+		PRINT("Usage:\n")
+		PRINT("   	%s program_name \n\n")
+		PRINT("Where:\n")
+		PRINT("   	%s - Name of this Daemon loader.\n")
+		PRINT("   	program_name - Name (including path) of the program you want to load as daemon.\n\n")
+		PRINT("Example:\n")
+		PRINT("   	%s ./atprcmgr - Launch program 'atprcmgr' in current directory as daemon. \n\n\n\n"),
 		name, name, name
 		);
 }
@@ -79,33 +81,29 @@ void PrintUsage(char* name)
 int main(int argc, char* argv[])
 {
 	printf(
-		TEXT("\n")
-		TEXT("Daemon loader\n")
-		TEXT("- Launch specified program as daemon.\n")
-		//TEXT("- Require root privilege to launch successfully.\n\n\n") 
+		PRINT("\n")
+		PRINT("Daemon loader\n")
+		PRINT("Launch specified program as daemon.\n")
 		);
     
 	if (argc < 2)
 	{
-		printf("* Missing parameter : daemon program name not specified!\n");
+		printf("Missing parameter: daemon program name not specified!\n");
 		PrintUsage(argv[0]);
-		exit(0);
+		return 0;
 	}
 
-	printf("- Loading %s as daemon, please wait ......\n\n\n", argv[1]);
+	printf("Loading %s as daemon, please wait...\n\n\n", argv[1]);
 
-	if (daemon(1, 0, 1) >= 0)
+	if (Daemon(1, 0, 1) >= 0)
 	{
 		signal(SIGCHLD, SIG_IGN);
-
-		//execl(argv[1], argv[1], NULL);
 		execv(argv[1], argv + 1);
-		printf("! Excute daemon programm %s failed. \n", argv[1]); 
-
-		exit(0);
+		printf("Excute daemon programm %s failed.\n", argv[1]);
+		return 0;
 	}
 
-	printf("! Create daemon error. Please check if you have 'root' privilege. \n");
+	printf("Create daemon failed. Please check if you have 'root' privilege.\n");
 	return 0;
 }
 

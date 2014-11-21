@@ -273,6 +273,7 @@ CImPduClientGroupMsgListResponse::CImPduClientGroupMsgListResponse(uchar_t* buf,
 		for (uint32_t i = 0; i < m_msg_cnt; i++) {
 			m_msg_list[i].from_user_id_url = is.ReadString(m_msg_list[i].from_user_id_len);
 			is >> m_msg_list[i].create_time;
+            is >> m_msg_list[i].msg_type;
 			m_msg_list[i].msg_content = is.ReadData(m_msg_list[i].msg_len);
 		}
 	}
@@ -295,6 +296,7 @@ CImPduClientGroupMsgListResponse::CImPduClientGroupMsgListResponse(uint32_t cmd_
 		char* from_user_id_url = idtourl(msg_list[i].from_user_id);
 		os.WriteString(from_user_id_url);
 		os << msg_list[i].create_time;
+        os << msg_list[i].msg_type;
 		os.WriteData(msg_list[i].msg_content, msg_list[i].msg_len);
 	}
 
@@ -798,6 +800,7 @@ CImPduGroupMsgListResponse::CImPduGroupMsgListResponse(uchar_t* buf, uint32_t le
 		for (uint32_t i = 0; i < m_msg_cnt; i++) {
 			is >> m_msg_list[i].from_user_id;
 			is >> m_msg_list[i].create_time;
+            is >> m_msg_list[i].msg_type;
 			m_msg_list[i].msg_content = is.ReadData(m_msg_list[i].msg_len);
 		}
 	}
