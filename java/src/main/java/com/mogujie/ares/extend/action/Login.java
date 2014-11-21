@@ -24,7 +24,7 @@ public class Login extends BaseAction {
      * 
      * @param userId 用户Id
      * 
-     * @param token
+     * @param token 登陆用户请求蘑菇街主站的http://www.mogujie.com/aresapi/login接口来获得
      * 
      * @return
      */

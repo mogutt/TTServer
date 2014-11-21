@@ -21,7 +21,8 @@ import com.mogujie.ares.lib.logger.LoggerFactory;
  * 
  */
 public class FrameBinaryEncoder extends SimpleChannelDownstreamHandler {
-    private static final Logger logger = LoggerFactory
+    @SuppressWarnings("unused")
+	private static final Logger logger = LoggerFactory
             .getLogger(FrameBinaryEncoder.class);
 
     /**
@@ -45,11 +46,11 @@ public class FrameBinaryEncoder extends SimpleChannelDownstreamHandler {
                     + SysConstants.PROTOCOL_HEADER_LENGTH; // 总的包长
             headBuffer.putInt(length);// 消息长度
             char[] tc = Character.toChars(request.getServiceId());
-            headBuffer.putChar(tc[0]); // 服务号
+            headBuffer.putChar(tc[0]); // 服务号, 后端这边固定1000
             tc = Character.toChars(request.getCommandId());
             headBuffer.putChar(tc[0]); // 命令号
             tc = Character.toChars(request.getVersion());
-            headBuffer.putChar(tc[0]);// 消息version
+            headBuffer.putChar(tc[0]);// 消息version, 1个字节
             tc = Character.toChars(request.getReserved());
             headBuffer.putChar(tc[0]); // 保留，可用于序列号等
             headBuffer.flip(); // 这里需要重置一下游标和长度
@@ -66,7 +67,7 @@ public class FrameBinaryEncoder extends SimpleChannelDownstreamHandler {
             int length = SysConstants.PROTOCOL_HEADER_LENGTH; // 总的包长
             headBuffer.putInt(length);// 消息长度
             char[] tc = Character.toChars(request.getServiceId());
-            headBuffer.putChar(tc[0]); // 服务号
+            headBuffer.putChar(tc[0]); // 服务号, 后端这边固定1000
             tc = Character.toChars(request.getCommandId());
             headBuffer.putChar(tc[0]); // 命令号 TODO
             headBuffer.put((byte) request.getVersion());// 消息version, 1个字节
@@ -79,6 +80,7 @@ public class FrameBinaryEncoder extends SimpleChannelDownstreamHandler {
         // logger.info("encode serviceId : " + request.getServiceId()
         // + " commandId: " + request.getCommandId());
         Channels.write(ctx, e.getFuture(), totalBuffer);
+        //logger.info("发送totalBuffer : " + totalBuffer.toString(Charset.defaultCharset()));
     }
 
 }

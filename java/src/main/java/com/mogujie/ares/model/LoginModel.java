@@ -50,16 +50,18 @@ public class LoginModel {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            String sql = "select pwd from IMUsers where uname = "
+            String sql = "select pwd, status from IMUsers where uname = "
                     + MoguUtil.getArgsHolder(1);
             statement = conn.prepareStatement(sql);
             statement.setString(1, uname);
             rs = statement.executeQuery();
             String passwd = "";
+            int    status = 0;
             while (rs.next()) {
                 passwd = rs.getString("pwd");
+                status = rs.getInt("status");
                 logger.info("login: " + uname);
-                if (!StringUtils.isEmpty(passwd) && passwd.equals(pwd)) {
+                if (status == 0 && !StringUtils.isEmpty(passwd) && passwd.equals(pwd)) {
                     isAuthed = true;
                 }
             }

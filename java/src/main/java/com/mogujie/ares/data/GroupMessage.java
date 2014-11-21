@@ -16,11 +16,43 @@ public class GroupMessage {
 	
 	private String content;
 	
+	/**
+	 * @return the audio
+	 */
+	public Audio getAudio() {
+		return audio;
+	}
+
+	/**
+	 * @param audio the audio to set
+	 */
+	public void setAudio(Audio audio) {
+		this.audio = audio;
+	}
+
+	private Audio audio;
+	
 	private int status;
 	
 	private int updated;
 	
+	/**
+	 * @return the messageType
+	 */
+	public int getMessageType() {
+		return messageType;
+	}
+
+	/**
+	 * @param messageType the messageType to set
+	 */
+	public void setMessageType(int messageType) {
+		this.messageType = messageType;
+	}
+
 	private int created;
+	
+	private int messageType;
 
 	public int getId() {
 		return id;

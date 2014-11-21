@@ -16,6 +16,7 @@ import org.dom4j.io.SAXReader;
 
 import com.mogujie.ares.lib.logger.Logger;
 import com.mogujie.ares.lib.logger.LoggerFactory;
+import com.mogujie.ares.manager.FileManager;
 
 /**
  * 配置，单利
@@ -32,6 +33,8 @@ public class Configure
 	
 	public Properties cacheConfig;
 	
+	public Properties commonConfig;
+	
 	public ConcurrentHashMap<String, HashMap<String, String>> timerConfig;
 	
 	public Router actionRouter;
@@ -41,6 +44,7 @@ public class Configure
 		systemConfig = new Properties();
 		dbConfig = new Properties();
 		cacheConfig = new Properties();
+		commonConfig = new Properties();
 		timerConfig = new ConcurrentHashMap<String, HashMap<String,String>>();
 		actionRouter = Router.getInstance();
 	}
@@ -75,6 +79,7 @@ public class Configure
 	 */
 	public void loadConfigs() throws Exception {
 		loadSystemConfig(); // 系统配置
+		setCommonConfig();
 		loadDBConfig(); 
 		loadCacheConfig(); 
 		loadActionConfig(); // action相关的路由配置
@@ -84,6 +89,12 @@ public class Configure
 	public void loadSystemConfig()
 	{
 		propertyConfigLoader_sys("/system.properties", systemConfig);
+	}
+	
+	public void setCommonConfig() {
+		String path = System.getProperty("user.dir") + "/" + systemConfig.getProperty("com.mogujie.ares.config.file.common");
+		propertyConfigLoader(path, commonConfig);
+		FileManager.fileServerUrl = commonConfig.getProperty("com.mogujie.ares.config.file.serverurl");
 	}
 	
 	public void loadDBConfig()

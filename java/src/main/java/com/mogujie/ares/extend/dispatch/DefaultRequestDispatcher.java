@@ -62,7 +62,7 @@ public class DefaultRequestDispatcher implements IDispatcher {
             Object res = actionContext.invoke(context, packet);
             if (res != null) {
                 actionContext.sendResponse(context, packet, (DataBuffer) res); // 发送结果
-            }
+            } 
         } catch (Exception e1) { // 如果出错了，临死前返回一个数据包给客户端...
             logger.error("commandId: " + packet.getCommandId(), e1);
             // actionContext.sendResponse(context, packet, new DataBuffer(0));

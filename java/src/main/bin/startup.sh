@@ -1,7 +1,7 @@
 #!/bin/bash
 
 t=`date +%Y%m%d_%H%M%S`
-#cp src/main/bin/* ./
+cp src/main/bin/* ./
 ALLPROTS=($@)
 for port in ${ALLPROTS[@]}
 do
@@ -15,7 +15,6 @@ do
 	fi  
 	mkdir $port
 	cd $port
-	cp ../*-online.* ./
 	cp ../target/mogutalk-business-0.0.1-SNAPSHOT.jar ./
 	cp ../run.sh ./
 	sh run.sh $port

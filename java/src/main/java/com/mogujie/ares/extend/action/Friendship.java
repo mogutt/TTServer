@@ -7,14 +7,12 @@ import java.util.Map;
 import com.mogujie.ares.configure.BizConstants;
 import com.mogujie.ares.data.Group;
 import com.mogujie.ares.data.Relationship;
-import com.mogujie.ares.data.User;
 import com.mogujie.ares.extend.BaseAction;
 import com.mogujie.ares.lib.logger.Logger;
 import com.mogujie.ares.lib.logger.LoggerFactory;
 import com.mogujie.ares.lib.net.DataBuffer;
 import com.mogujie.ares.model.GroupModel;
 import com.mogujie.ares.model.RelationshipModel;
-import com.mogujie.ares.model.UserModel;
 import com.mogujie.ares.util.MoguUtil;
 
 /*
@@ -26,20 +24,20 @@ public class Friendship extends BaseAction {
 
     private static final Logger logger = LoggerFactory
             .getLogger(Friendship.class);
-    private static User serviceUser; // 服务号小T
+    //private static User serviceUser; // 服务号小T
     private static Map<Integer, Integer> mapFilterUserIds = new HashMap<Integer, Integer>();// 要过滤的用户id
 
     public Friendship() {
-        try {
-            serviceUser = UserModel.getInstance().getServerUserInfo();
-            if (null == serviceUser) {
-                throw new IllegalArgumentException(
-                        "can't initialize server user info");
-            }
-            mapFilterUserIds.put(serviceUser.getUserId(), 1);
-        } catch (SQLException e) {
-            logger.error("initialize server user info error with reason : ", e);
-        }
+//        try {
+//            serviceUser = UserModel.getInstance().getServerUserInfo();
+//            if (null == serviceUser) {
+//                throw new IllegalArgumentException(
+//                        "can't initialize server user info");
+//            }
+//            mapFilterUserIds.put(serviceUser.getUserId(), 1);
+//        } catch (SQLException e) {
+//            logger.error("initialize server user info error with reason : ", e);
+//        }
     }
 
     /*
@@ -73,12 +71,12 @@ public class Friendship extends BaseAction {
             Relationship[] friendshipArray = RelationshipModel.getInstance()
                     .getRecentContactByUserId(userId, 100);
 
-            if (serviceUser != null) {
-                mapFilterUserIds.put(serviceUser.getUserId(), 1);
-                tmpBuffer.writeInt(serviceUser.getUserId());
-                tmpBuffer.writeInt(1767200461); // 2026-01-01 服务号默认置顶
-                count++;
-            }
+//            if (serviceUser != null) {
+//                mapFilterUserIds.put(serviceUser.getUserId(), 1);
+//                tmpBuffer.writeInt(serviceUser.getUserId());
+//                tmpBuffer.writeInt(1767200461); // 2026-01-01 服务号默认置顶
+//                count++;
+//            }
             int fuid;
             if (friendshipArray != null && friendshipArray.length > 0) {
                 for (int i = 0; i < friendshipArray.length; i++) {

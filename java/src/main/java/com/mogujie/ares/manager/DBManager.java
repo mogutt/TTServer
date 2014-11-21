@@ -73,7 +73,7 @@ public class DBManager {
                 String jdbcPassword = dbProperties.getProperty(instanceName
                         + "_password");
 
-                logger.info("jdbc: " + jdbcUrl + " ,jdbcUsername: " + jdbcUsername + " ,jdbcPassword: " + jdbcPassword);
+                //logger.info("jdbc: " + jdbcUrl + " ,jdbcUsername: " + jdbcUsername + " ,jdbcPassword: " + jdbcPassword);
 
                 DBPool newDBPool = new DBPool(jdbcUrl, jdbcUsername,
                         jdbcPassword);

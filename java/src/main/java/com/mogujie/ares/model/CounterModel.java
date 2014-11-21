@@ -23,6 +23,7 @@ import java.util.Map;
 import redis.clients.jedis.Jedis;
 
 import com.mogujie.ares.configure.BizConstants;
+import com.mogujie.ares.data.ClientType;
 import com.mogujie.ares.data.Counter;
 import com.mogujie.ares.data.GroupCounterItem;
 import com.mogujie.ares.lib.logger.Logger;
@@ -106,7 +107,7 @@ public class CounterModel {
 
     /*
      * 
-     * @Description: 获得某用户对所有最尽联系人的消息计数器
+     * @Description: 获得某用户对所有最近联系人的消息计数器
      * 
      * @param userId
      * 
@@ -154,9 +155,11 @@ public class CounterModel {
      * 
      * @param friendUserId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
-    public int getUserFriendUnreadCount(int userId, int friendUserId) {
+    public int getUserFriendUnreadCount(int userId, int friendUserId, int clientType) {
         int unreadCnt = 0;
         if (userId != 0 && friendUserId != 0) {
             CacheManager cacheManager = CacheManager.getInstance();
@@ -165,8 +168,9 @@ public class CounterModel {
             try {
                 counterInstance = cacheManager
                         .getResource(CachePoolName.unread);
-                friendUnreadCnt = counterInstance.hget(String.valueOf(userId),
+                friendUnreadCnt = counterInstance.hget(ClientType.prefixKeyOf(clientType) + String.valueOf(userId),
                         String.valueOf(friendUserId));
+                logger.debug("shuchentest:" + friendUnreadCnt);
             } catch (Exception e) {
                 logger.error("", e);
             } finally {
@@ -187,6 +191,8 @@ public class CounterModel {
      * @param fromUserId
      * 
      * @param toUserId
+     * 
+     * @param clientType 客户端类型@see ClientType
      */
     public void increaseUserUnreadMsgCount(int fromUserId, int toUserId) {
         if (fromUserId == 0 || toUserId == 0) {
@@ -197,8 +203,12 @@ public class CounterModel {
         Jedis unreadInstance = null;
         try {
             unreadInstance = cacheManager.getResource(CachePoolName.unread);
-            unreadInstance.hincrBy(String.valueOf(toUserId),
+            unreadInstance.hincrBy(ClientType.prefixKeyOf(ClientType.MAC) + String.valueOf(toUserId),
                     String.valueOf(fromUserId), 1);
+            unreadInstance.hincrBy(ClientType.prefixKeyOf(ClientType.IOS) + String.valueOf(toUserId),
+            		String.valueOf(fromUserId), 1);
+            unreadInstance.hincrBy(ClientType.prefixKeyOf(ClientType.ANDROID) + String.valueOf(toUserId),
+            		String.valueOf(fromUserId), 1);
         } catch (Exception e) {
             logger.error("", e);
         } finally {
@@ -211,10 +221,11 @@ public class CounterModel {
      * @Description: 获得用户所有的未读消息
      * 
      * @param userId
+     * @param clientType 客户端类型@see ClientType
      * 
      * @return
      */
-    public Counter getUnreadMsgCount(int userId) {
+    public Counter getUnreadMsgCount(int userId, int clientType) {
         Counter userUnreadCount = new Counter();
 
         if (userId == 0) {
@@ -225,8 +236,9 @@ public class CounterModel {
         Map<String, String> userUnreadCountMap = new HashMap<String, String>();
         try {
             unreadInstance = cacheManager.getResource(CachePoolName.unread);
-            userUnreadCountMap = unreadInstance.hgetAll(String.valueOf(userId));
-	    logger.info( String.valueOf(userId) + " : " + userUnreadCountMap);
+            userUnreadCountMap = unreadInstance.hgetAll(ClientType.prefixKeyOf(clientType) + String.valueOf(userId));
+            logger.info( "shuchentest:" +String.valueOf(userId) + " : " + userUnreadCountMap);
+	        logger.info( String.valueOf(userId) + " : " + userUnreadCountMap);
         } catch (Exception e) {
             logger.error("", e);
         } finally {
@@ -259,9 +271,11 @@ public class CounterModel {
      * 
      * @param friendUserId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
-    public boolean clearUserUnreadItemCount(int userId, int friendUserId) {
+    public boolean clearUserUnreadItemCount(int userId, int friendUserId, int clientType) {
         if (userId == 0 || friendUserId == 0) {
             return false;
         }
@@ -270,7 +284,7 @@ public class CounterModel {
         Jedis unreadInstance = null;
         try {
             unreadInstance = cacheManager.getResource(CachePoolName.unread);
-            unreadInstance.hdel(String.valueOf(userId),
+            unreadInstance.hdel(ClientType.prefixKeyOf(clientType) + String.valueOf(userId),
                     String.valueOf(friendUserId));
         } catch (Exception e) {
             logger.error("", e);
@@ -367,10 +381,12 @@ public class CounterModel {
      * 
      * @param groupId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
     public Map<Integer, Integer> getUserGroupUnreadCount(int userId,
-            int[] groupIds) {
+            int[] groupIds, int clientType) {
         Map<Integer, Integer> counterMap = null;
         if (userId <= 0 || groupIds == null || groupIds.length == 0) {
             return new HashMap<Integer, Integer>();
@@ -386,7 +402,7 @@ public class CounterModel {
                 continue;
             }
             if (!counterMap.containsKey(gid)) {
-                counterItem = getUserGroupCount(userId, gid);
+                counterItem = getUserGroupCount(userId, gid, clientType);
                 counterMap.put(gid, counterItem.getUserUnreadCount());
             }
         }
@@ -402,9 +418,11 @@ public class CounterModel {
      * 
      * @param groupId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
-    public GroupCounterItem getUserGroupCount(int userId, int groupId) {
+    public GroupCounterItem getUserGroupCount(int userId, int groupId, int clientType) {
         if (userId <= 0 || groupId <= 0) {
             GroupCounterItem counterItem = new GroupCounterItem();
             counterItem.setUserId(userId);
@@ -454,7 +472,7 @@ public class CounterModel {
             counterInstance = cacheManager
                     .getResource(CachePoolName.group_counter);
             userGroupCounter = counterInstance.hgetAll(getUserGroupRedisKey(
-                    userId, groupId));
+                    userId, groupId, clientType));
         } catch (Exception e) {
             logger.error("", e);
         } finally {
@@ -499,11 +517,13 @@ public class CounterModel {
      * 
      * @param groupId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      * 
      * @throws Exception
      */
-    public int getUserLastReadMsgIdInGroup(int userId, int groupId)
+    public int getUserLastReadMsgIdInGroup(int userId, int groupId, int clientType)
             throws Exception {
         if (userId <= 0 || groupId <= 0) {
             return -1;
@@ -517,7 +537,7 @@ public class CounterModel {
             counterInstance = cacheManager
                     .getResource(CachePoolName.group_counter);
 
-            strId = counterInstance.hget(getUserGroupRedisKey(userId, groupId),
+            strId = counterInstance.hget(getUserGroupRedisKey(userId, groupId, clientType),
                     BizConstants.GROUP_COUNTER_SUBKEY_LASTID);
         } catch (Exception e) {
             logger.error("", e);
@@ -543,7 +563,7 @@ public class CounterModel {
      * 
      * @return
      */
-    public boolean clearUserGroupCounter(int userId, int groupId) {
+    public boolean clearUserGroupCounter(int userId, int groupId, int clientType) {
         if (userId <= 0 || groupId <= 0) {
             return false;
         }
@@ -556,7 +576,7 @@ public class CounterModel {
                     .getResource(CachePoolName.group_counter);
             countData = counterInstance.hgetAll(getGroupRedisKey(groupId));
             if (countData != null && !countData.isEmpty()) {
-                counterInstance.hmset(getUserGroupRedisKey(userId, groupId),
+                counterInstance.hmset(getUserGroupRedisKey(userId, groupId, clientType),
                         countData);
             }
         } catch (Exception e) {
@@ -604,11 +624,19 @@ public class CounterModel {
      * 
      * @param groupId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
-    private String getUserGroupRedisKey(int userId, int groupId) {
-        return userId + "_" + groupId
-                + BizConstants.GROUP_USER_MSG_COUNTER_REDIS_KEY_SUFFIX;
+    private String getUserGroupRedisKey(int userId, int groupId, int clientType) {
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(ClientType.prefixKeyOf(clientType));
+    	sb.append("_");
+    	sb.append(userId);
+    	sb.append("_");
+    	sb.append(groupId);
+    	sb.append(BizConstants.GROUP_USER_MSG_COUNTER_REDIS_KEY_SUFFIX);
+        return  sb.toString();
     }
 
     /*

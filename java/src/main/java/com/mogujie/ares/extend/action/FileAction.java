@@ -105,7 +105,7 @@ public class FileAction extends BaseAction {
 
     /*
      * 
-     * @Description: 存储或删除离线文件的信息
+     * @Description: 存储或删除立宪文件的信息
      * 
      * @param fromUserId
      * 

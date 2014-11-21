@@ -14,7 +14,6 @@ import com.mogujie.ares.lib.logger.LoggerFactory;
 import com.mogujie.ares.lib.net.DataBuffer;
 import com.mogujie.ares.model.CounterModel;
 import com.mogujie.ares.model.GroupModel;
-import com.mogujie.ares.model.MessageModel;
 import com.mogujie.ares.util.MoguUtil;
 
 public class MessageCounter extends BaseAction {
@@ -26,14 +25,15 @@ public class MessageCounter extends BaseAction {
      * 获得未读消息计数
      * 
      * @param userId 请求的用户ID
+     * @param clientType 客户端类型@see ClientType
      */
-    public DataBuffer unread(int userId, DataBuffer attachment, int version) {
-        logger.info("unread count: userId=" + userId);
+    public DataBuffer unread(int userId, int clientType, DataBuffer attachment, int version) {
+        logger.info("unread count: userId=" + userId + ", clientType=" + clientType);
         DataBuffer buffer = new DataBuffer();
         buffer.writeInt(userId);
 
         Counter userUnreadCount = CounterModel.getInstance().getUnreadMsgCount(
-                userId);
+                userId, clientType);
         Map<String, Integer> userUnreadInfo = userUnreadCount.getUnreadCount();
         String unreadCounterList = "";
         if (userUnreadInfo != null && userUnreadInfo.size() > 0) {
@@ -72,24 +72,28 @@ public class MessageCounter extends BaseAction {
      * 
      * @param friendUserId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
     public DataBuffer clear(int commandId, int requestId, int userId,
-            int friendUserId, int version) {
-        logger.info("clear counter: requestId=" + requestId + ", userId="
-                + userId + ", friendUserId=" + friendUserId);
+            int friendUserId, int clientType, int version) {
+        logger.info("clear counter: requestId=" + requestId + ", userId=" + userId 
+        		+ ", friendUserId=" + friendUserId + ", clientType=" + clientType);
 
         int result = 0;
         if (!CounterModel.getInstance().clearUserUnreadItemCount(userId,
-                friendUserId)) {
+                friendUserId, clientType)) {
             result = 1;
         }
+        
+        /*暂时去除阅后即焚的功能
         try {
             MessageModel.getInstance().deleteUserReadedDialogMessages(userId,
-                    friendUserId);
+                    friendUserId, clientType);
         } catch (SQLException e) {
             logger.error("", e);
-        }
+        }*/
 
         DataBuffer responseBuffer = new DataBuffer();
         responseBuffer.writeInt(requestId);
@@ -107,14 +111,16 @@ public class MessageCounter extends BaseAction {
      * 
      * @param userId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @param attachment
      * 
      * @param version
      * 
      * @return
      */
-    public DataBuffer groupUnread(int userId, DataBuffer attachment, int version) {
-        logger.info("group unread count: userId=" + userId);
+    public DataBuffer groupUnread(int userId, int clientType, DataBuffer attachment, int version) {
+        logger.info("group unread count: userId=" + userId + ", clientType=" + clientType);
         DataBuffer buffer = new DataBuffer();
         buffer.writeInt(userId);
 
@@ -134,7 +140,7 @@ public class MessageCounter extends BaseAction {
                 }
                 Map<Integer, Integer> userUnreadCount = CounterModel
                         .getInstance()
-                        .getUserGroupUnreadCount(userId, groupIds);
+                        .getUserGroupUnreadCount(userId, groupIds, clientType);
                 if (userUnreadCount != null && !userUnreadCount.isEmpty()) {
                     values = userUnreadCount.toString();
                     DataBuffer tempDataBuffer = new DataBuffer();
@@ -188,14 +194,17 @@ public class MessageCounter extends BaseAction {
      * 
      * @param friendUserId
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
     public DataBuffer clearUserGroup(int commandId, int userId, int groupId,
-            int version) {
-        logger.info("clear counter: userId=" + userId + ", groupId=" + groupId);
+            int clientType, int version) {
+        logger.info("clear counter: userId=" + userId + ", groupId=" + groupId 
+        		+ ", clientType=" + clientType);
 
         int result = 0;
-        if (!CounterModel.getInstance().clearUserGroupCounter(userId, groupId)) {
+        if (!CounterModel.getInstance().clearUserGroupCounter(userId, groupId, clientType)) {
             result = 1;
         }
 

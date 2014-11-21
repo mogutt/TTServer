@@ -1,8 +1,6 @@
 package com.mogujie.ares.extend.action;
 
 import com.mogujie.ares.extend.BaseAction;
-import com.mogujie.ares.lib.net.DataBuffer;
-import com.mogujie.ares.model.ServerConfigModel;
 
 /**
  * 

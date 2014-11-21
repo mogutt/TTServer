@@ -35,7 +35,6 @@ import com.mogujie.ares.util.MoguUtil;
  */
 public class MessageModel {
 
-    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory
             .getLogger(MessageModel.class);
 
@@ -88,6 +87,29 @@ public class MessageModel {
 			}
 		} else {
 			logger.error("语音文件有问题：" + fromUserId + " -> " + toUserId + ": " + byteContent.length);
+		}
+		
+		return isSuccess;
+	}
+	
+	public boolean sendGroupAudioMessage(int fromUserId, int groupId, byte[] byteContent, int time,int clientType,int messageType) throws SQLException {
+		boolean isSuccess = false;
+		if(fromUserId <= 0 || groupId <= 0 || 
+				null == byteContent || byteContent.length <= 0) {
+			return isSuccess;
+		}
+		logger.info("发送群语音:" + fromUserId + " -> " + groupId + ": " + byteContent.length);
+		AudioModel audioModel = AudioModel.getInstance();
+		Audio audio = audioModel.parseAudio(byteContent);
+		if(audio != null) {
+			audio = audioModel.saveAudio(fromUserId, groupId, audio, time);
+			logger.info("发送语音:" + fromUserId + " -> " + groupId + ", time = " + audio.getCostTime() + ", contentLength=" + audio.getFileSize());
+			if(audio != null) { // 保存文件成功
+				sendIMGroupMessage(fromUserId, groupId, String.valueOf(audio.getId()), time, clientType, messageType);
+				isSuccess = true;
+			}
+		} else {
+			logger.error("语音文件有问题：" + fromUserId + " -> " + groupId + ": " + byteContent.length);
 		}
 		
 		return isSuccess;
@@ -196,11 +218,13 @@ public class MessageModel {
      * 
      * @param friendUserId 与用户对话的ID
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return Boolean
      * 
      * @throws SQLException
      */
-    public Boolean deleteUserReadedDialogMessages(int userId, int friendUserId)
+    public Boolean deleteUserReadedDialogMessages(int userId, int friendUserId, int clientType)
             throws SQLException {
         if (userId <= 0 || friendUserId <= 0) {
             return false;
@@ -214,7 +238,7 @@ public class MessageModel {
 
         // 获取两个人未读消息条数
         int fromCount = CounterModel.getInstance().getUserFriendUnreadCount(
-                userId, friendUserId);
+                userId, friendUserId, clientType);
         // int ToCount =
         // CounterModel.getInstance().getUserFriendUnreadCount(friendUserId,
         // userId);
@@ -425,8 +449,12 @@ public class MessageModel {
                 message.setStatus(rs.getInt("status"));
                 message.setCreated(rs.getInt("created"));
                 message.setUpdated(rs.getInt("updated"));
+                message.setMessageType(rs.getInt("messageType"));
                 messageList.add(message);
             }
+            
+            messageList = fillGroupAudioData(messageList);
+            
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -485,8 +513,12 @@ public class MessageModel {
                 message.setStatus(rs.getInt("status"));
                 message.setCreated(rs.getInt("created"));
                 message.setUpdated(rs.getInt("updated"));
+                message.setMessageType(rs.getInt("messageType"));
                 messageList.add(message);
             }
+            
+            messageList = fillGroupAudioData(messageList);
+            
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -676,12 +708,14 @@ public class MessageModel {
      * 
      * @param time
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      * 
      * @throws SQLException
      */
     public boolean sendIMGroupMessage(int userId, int toGroupId,
-            String content, int time) throws SQLException {
+            String content, int time, int clientType,int messageType) throws SQLException {
         boolean isSuccess = false;
 
         if (userId <= 0 || toGroupId <= 0 || null == content
@@ -698,8 +732,8 @@ public class MessageModel {
         try {
             GroupModel groupModel = GroupModel.getInstance();
             if (groupModel.isGroupMember(userId, toGroupId)) { // 是群成员
-                String sql = "insert into IMGroupMessage(`groupId`, `userId`, `content`, `created`, `updated`) "
-                        + "values(?, ?, ?, ?, ?)";
+                String sql = "insert into IMGroupMessage(`groupId`, `userId`, `content`, `created`, `updated`,`messageType`) "
+                        + "values(?, ?, ?, ?, ?,?)";
                 statement = conn.prepareStatement(sql,
                         Statement.RETURN_GENERATED_KEYS);
                 int index = 1;
@@ -708,6 +742,7 @@ public class MessageModel {
                 statement.setObject(index++, content);
                 statement.setObject(index++, time);
                 statement.setObject(index++, time);
+                statement.setObject(index++, messageType);
                 succCount = statement.executeUpdate();
                 if (succCount > 0) {
                     isSuccess = true;
@@ -726,7 +761,7 @@ public class MessageModel {
         if (lastMessageId > 0) {
             CounterModel counterModel = CounterModel.getInstance();
             counterModel.incrGroupMsgCount(toGroupId, lastMessageId);
-            counterModel.clearUserGroupCounter(userId, toGroupId); // 发消息的人不用计数+1，所以直接标记已读
+            counterModel.clearUserGroupCounter(userId, toGroupId, clientType); // 发消息的人不用计数+1，所以直接标记已读
             GroupModel groupModel = GroupModel.getInstance();
             groupModel.checkAndUpdateGroupRelation(userId, toGroupId, time); // 更新最近联系群，设置状态为2
                                                                              // 0退出
@@ -816,7 +851,57 @@ public class MessageModel {
         CounterModel counterModel = CounterModel.getInstance();
         counterModel.increaseChatNewCount(toUserId);
     }
+    
+	public List<GroupMessage> fillGroupAudioData(List<GroupMessage> groupMessageList) throws SQLException{
 
+		if(groupMessageList == null || groupMessageList.isEmpty()) {
+			return new ArrayList<GroupMessage>();
+		}
+		int size = groupMessageList.size();
+		int aid;
+		List<Integer> audioIdList = new ArrayList<Integer>(); 
+		String content = "";
+		GroupMessage msg = null;
+		Map<Integer, Integer> idMap = new HashMap<Integer, Integer>();
+		for(int i = 0; i < size; i++) {
+			msg = groupMessageList.get(i);
+			if(msg.getMessageType() == BizConstants.MESSAGE_TYPE_IM_GROUP_AUDIO) {
+				content = new String(msg.getContent());
+				if(!StringUtils.isEmpty(content)) {
+					try{
+						aid = Integer.valueOf(content);
+						audioIdList.add(aid);
+						idMap.put(aid, i);
+					} catch(Exception e) {
+						logger.error(content, e); 
+					}
+				}
+			}
+		}
+		Map<Integer, Audio> audioMap = new HashMap<Integer, Audio>();
+		int aidSize = audioIdList.size();
+		if(aidSize > 0) {
+			int[] audioIds = new int[aidSize];
+			for(int i = 0; i < aidSize; i++) {
+				audioIds[i] = audioIdList.get(i);
+			}
+			audioMap = AudioModel.getInstance().readAudios(audioIds);
+		}
+		if(!audioMap.isEmpty()) {
+			Audio audio = null;
+			int index = -1;
+			Iterator<Audio> iter = audioMap.values().iterator();
+			while (iter.hasNext()) {
+				audio = iter.next();
+				index = idMap.get(audio.getId());
+				groupMessageList.get(index).setAudio(audio);
+			}
+		}
+		
+		return groupMessageList;
+	
+	}
+	
     /**
 	 * 
 	 * @Description: 填充语音内容

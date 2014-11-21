@@ -13,7 +13,6 @@ import com.mogujie.ares.lib.logger.LoggerFactory;
 import com.mogujie.ares.lib.net.DataBuffer;
 import com.mogujie.ares.model.CounterModel;
 import com.mogujie.ares.model.MessageModel;
-import com.mogujie.ares.model.RelationshipModel;
 import com.mogujie.ares.util.MoguUtil;
 
 public class MessageContent extends BaseAction {
@@ -21,10 +20,20 @@ public class MessageContent extends BaseAction {
     private static final Logger logger = LoggerFactory
             .getLogger(MessageContent.class);
 
+    /**
+     * 
+     * @param commandId
+     * @param userId
+     * @param groupId
+     * @param clientType 客户端类型@see ClientType
+     * @param attachment
+     * @param version
+     * @return
+     */
     public DataBuffer getGroupUnreadMessage(int commandId, int userId,
-            int groupId, DataBuffer attachment, int version) {
+            int groupId, int clientType, DataBuffer attachment, int version) {
         logger.info("query group unread message: fromUserId=" + userId
-                + ", groupId =" + groupId);
+                + ", groupId =" + groupId + ", clientType=" + clientType);
         if (userId <= 0 || groupId <= 0) {
             DataBuffer buffer = new DataBuffer();
             buffer.writeInt(userId);
@@ -43,7 +52,7 @@ public class MessageContent extends BaseAction {
 
         try {
             GroupCounterItem counterItem = CounterModel.getInstance()
-                    .getUserGroupCount(userId, groupId);
+                    .getUserGroupCount(userId, groupId, clientType);
             int lastMsgId = counterItem.getLastMessageId();
             int count = counterItem.getUserUnreadCount(); // 这里的计数最大是
                                                           // GROUP_UNREAD_MAX_COUNTER
@@ -125,12 +134,14 @@ public class MessageContent extends BaseAction {
      * 
      * @param friendUserId 接收者
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
     public DataBuffer getUnreadMessage(int commandId, int userId,
-            int friendUserId, DataBuffer attachment, int version) {
+            int friendUserId, int clientType, DataBuffer attachment, int version) {
         logger.info("query unread message: fromUserId=" + userId
-                + ", friendUserId=" + friendUserId);
+                + ", friendUserId=" + friendUserId + ", clientType=" + clientType);
         if (userId <= 0 || friendUserId <= 0) {
             DataBuffer buffer = new DataBuffer();
             buffer.writeInt(commandId);
@@ -150,7 +161,7 @@ public class MessageContent extends BaseAction {
 
         try {
             int count = CounterModel.getInstance().getUserFriendUnreadCount(
-                    userId, friendUserId);
+                    userId, friendUserId, clientType);
             count = count > BizConstants.UNREAD_MAX_COUNTER ? BizConstants.UNREAD_MAX_COUNTER
                     : count; // 一次读取不超过500条
             if (count > 0) {
@@ -170,7 +181,6 @@ public class MessageContent extends BaseAction {
                     e);
             buffer.writeInt(0);
         }
-
         return MoguUtil.writeAttachments(buffer, attachment);
     }
 
@@ -182,16 +192,16 @@ public class MessageContent extends BaseAction {
      * @param friendUserId
      *            接收者
      * @param offset
-     * @param count
-     *            条数
+     * @param count 条数
+     * @param clientType 客户端类型@see ClientType
      * @return
      */
     public DataBuffer getHistoryMessage(int commandId, int userId,
-            int friendUserId, int offset, int count, DataBuffer attachment,
+            int friendUserId, int offset, int count, int clientType, DataBuffer attachment,
             int version) {
         logger.info("query history message: userId=" + userId
                 + ", friendUserId=" + friendUserId + ", offset=" + offset
-                + ", count=" + count);
+                + ", count=" + count + ", clientType=" + clientType);
         if (userId <= 0 || friendUserId < 0 || offset < 0 || count <= 0) {
             logger.info("获取历史消息数据校验出错from:" + userId + ", to: " + friendUserId
                     + ", offset: " + offset + ", count: " + count);
@@ -246,14 +256,16 @@ public class MessageContent extends BaseAction {
      * 
      * @param content 消息内容
      * 
+     * @param clientType 客户端类型@see ClientType
+     * 
      * @return
      */
     public DataBuffer sendMessage(int requestType, int requestId,
             int fromUserId, int toId, int created, byte biteMessageType,
-            byte[] content, String attach, int version) {
+            byte[] content, int clientType, String attach, int version) {
         logger.info("发送消息 - requestId=" + requestId + ", fromUserId="
                 + fromUserId + ", toUserId=" + toId + ", created=" + created
-                + ", content=*" + ", attach=" + attach);
+                + ", content=*" + ", clientType=" + clientType + ", attach=" + attach);
         MessageModel msgModel = MessageModel.getInstance();
         int messageType = biteMessageType;
         DataBuffer dataBuffer = new DataBuffer();
@@ -278,18 +290,17 @@ public class MessageContent extends BaseAction {
             int msgType = biteMessageType;
             if (msgType == BizConstants.MESSAGE_TYPE_IM ) {
             	String strContent = new String(content);
-                isSuccess = msgModel.sendIMMessage(fromUserId, toId, msgType,
-                		strContent, created);
+                isSuccess = msgModel.sendIMMessage(fromUserId, toId, msgType,strContent, created);
 			} else if(msgType == BizConstants.MESSAGE_TYPE_IM_AUDIO){
-				isSuccess = msgModel.sendAudioMessage(fromUserId, toId,
-						content,created);
-            } else if (msgType == BizConstants.MESSAGE_TYPE_IM_GROUP
-                    || msgType == BizConstants.MESSAGE_TYPE_IM_GROUP_AUDIO) {
-            	isGroupMessage = true;
-            	String strContent = new String(content);
-                isSuccess = msgModel.sendIMGroupMessage(fromUserId, toId,
-                		strContent, created);
+				isSuccess = msgModel.sendAudioMessage(fromUserId, toId,content,created);
+			}else if(msgType == BizConstants.MESSAGE_TYPE_IM_GROUP) {
+				String strContent = new String(content);
+				isSuccess = msgModel.sendIMGroupMessage(fromUserId, toId, strContent, created,clientType,msgType);
+            }else if( msgType == BizConstants.MESSAGE_TYPE_IM_GROUP_AUDIO){
+				isSuccess = msgModel.sendGroupAudioMessage(fromUserId, toId,
+						content,created,clientType,msgType);
             }
+            
             if (!isSuccess) { // 发送失败，记一把日志
                 logger.error("发送消息失败 - fromUserId=" + fromUserId
                         + ", toUserId=" + toId + ", created=" + created
@@ -357,7 +368,12 @@ public class MessageContent extends BaseAction {
         }
         dataBuffer.writeInt(message.getCreated());
         dataBuffer.writeByte(message.getType());
-        dataBuffer.writeString(message.getContent());
+        if(message.getType()==BizConstants.MESSAGE_TYPE_IM_AUDIO){
+        	 dataBuffer.writeByteArray(MessageModel.getInstance().getAudioMessageContent(message.getAudio()));
+        }else{
+        	 dataBuffer.writeString(message.getContent());
+        }
+       
         return dataBuffer;
     }
 
@@ -393,7 +409,13 @@ public class MessageContent extends BaseAction {
             GroupMessage groupMessage) {
         dataBuffer.writeInt(groupMessage.getUserId());
         dataBuffer.writeInt(groupMessage.getCreated());
-        dataBuffer.writeString(groupMessage.getContent());
+        dataBuffer.writeByte(groupMessage.getMessageType());
+		if(groupMessage.getMessageType()==BizConstants.MESSAGE_TYPE_IM_GROUP_AUDIO){
+			dataBuffer.writeByteArray(MessageModel.getInstance().getAudioMessageContent(groupMessage.getAudio()));
+		}else{
+			dataBuffer.writeString(groupMessage.getContent());
+		}
+
         return dataBuffer;
     }
 }

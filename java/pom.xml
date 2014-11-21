@@ -18,6 +18,7 @@
 		<log.std>STDOUT</log.std>
 		<config.file.db>db-dev.properties</config.file.db>
 		<config.file.cache>cache-dev.properties</config.file.cache>
+		<config.commom>common-dev.properties</config.commom>
 	</properties>
 
 	<profiles>
@@ -27,16 +28,12 @@
 				<log.std></log.std>
 				<config.file.db>db-online.properties</config.file.db>
 				<config.file.cache>cache-online.properties</config.file.cache>
+				<config.commom>common-online.properties</config.commom>
 			</properties>
 		</profile>
 	</profiles>
 
 	<dependencies>
-		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>1.6</version>
-		</dependency>
 		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
@@ -200,6 +197,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
+                                <version>2.4.3</version>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
