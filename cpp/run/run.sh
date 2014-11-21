@@ -23,7 +23,12 @@ function start() {
 		../daeml ./file_server
 	fi
 	
-  	cd ..
+	cd ../msfs
+	if [ -e msfs.conf ]; then
+		../daeml ./msfs
+	fi
+	
+	cd ..
 }
 
 function stop() {
