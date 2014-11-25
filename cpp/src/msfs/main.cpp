@@ -107,9 +107,7 @@ void Stop(int signo)
     case SIGQUIT:
         doQuitJob();
         _exit(0);
-            break;
-    case SIGHUP:
-            break;
+        break;
     default:
         cout<< "unknown signal"<<endl;
         _exit(0);
@@ -181,8 +179,9 @@ int main(int argc, char* argv[])
 
     signal(SIGINT, Stop);
     signal (SIGTERM, Stop);
-    signal (SIGHUP, Stop);
     signal (SIGQUIT, Stop);
+    signal(SIGPIPE, SIG_IGN);
+    signal (SIGHUP, SIG_IGN);
 
     printf("server start listen on: %s:%d\n", listen_ip, listen_port);
     init_http_conn();
