@@ -36,7 +36,7 @@ public:
 	virtual ~CThread();
 
 #ifdef _WIN32
-	static DWORD WINAPI StartRoutine(LPVOID lpParameter);
+	static DWORD WINAPI StartRoutine(LPVOID arg);
 #else
 	static void* StartRoutine(void* arg);
 #endif
