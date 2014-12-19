@@ -100,6 +100,7 @@ netlib_destroy();
 }
 void Stop(int signo)
 {
+    log("receive signal:%d", signo);
     switch(signo)
     {
     case SIGINT:

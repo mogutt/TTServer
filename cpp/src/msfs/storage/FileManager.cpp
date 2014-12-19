@@ -166,11 +166,13 @@ FileManager::getOrCreateEntry(const std::string& url, bool create) {
     struct stat buf;
     if(stat(path.c_str(), &buf) == -1)
     {
+        m_cs.Leave();
         return NULL;
     }
     
     if(!S_ISREG(buf.st_mode))
     {
+        m_cs.Leave();
         return NULL;
     }
     
@@ -272,6 +274,7 @@ void FileManager::releaseFileCache(const std::string& url) {
 	const Entry* entry = getEntry(url);
 	if (!entry) {
 		log("map has not the url::%s\n", url.c_str());
+        m_cs.Leave();
 		return;
 	}
 	delete [] entry->m_fileContent;
