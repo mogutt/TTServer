@@ -386,10 +386,10 @@ void CMsgConn::_HandleLoginRequest(CImPduLoginRequest* pPdu)
 	if (!pDbConn) {
 		result = REFUSE_REASON_NO_DB_SERVER;
 	}
-	if (!is_login_server_available()) {
+	else if (!is_login_server_available()) {
 		result = REFUSE_REASON_NO_LOGIN_SERVER;
 	}
-	if (!is_route_server_available()) {
+	else if (!is_route_server_available()) {
 		result = REFUSE_REASON_NO_ROUTE_SERVER;
 	}
 
