@@ -587,7 +587,7 @@ void CHttpConn::OnWrite()
     if (ret < out_buf_size)
     {
         m_busy = true;
-        log("not send all, remain=%d\n", m_out_buf.GetWriteOffset());
+//        log("not send all, remain=%d\n", m_out_buf.GetWriteOffset());
     } else
     {
         m_busy = false;
