@@ -512,6 +512,12 @@ void CHttpConn::OnRead()
         {
             begin_time = get_tick_count();
         }
+        string strUrl = m_HttpParser.GetUrl();
+        log("IP:%s access:%s\n", m_peer_ip.c_str(), strUrl.c_str());
+        if (strUrl.find("..") != strUrl.npos) {
+            Close();
+            return;
+        }
         m_access_host = m_HttpParser.GetHost();
         if (m_HttpParser.GetContentLen() > HTTP_UPLOAD_MAX)
         {
