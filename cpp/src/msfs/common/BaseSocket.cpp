@@ -245,7 +245,7 @@ void CBaseSocket::_SetNonblock(SOCKET fd)
 
 void CBaseSocket::_SetReuseAddr(SOCKET fd)
 {
-	BOOL reuse = TRUE;
+	int reuse = 1;
 	int ret = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse));
 	if (ret == SOCKET_ERROR)
 	{
@@ -255,7 +255,7 @@ void CBaseSocket::_SetReuseAddr(SOCKET fd)
 
 void CBaseSocket::_SetNoDelay(SOCKET fd)
 {
-	BOOL nodelay = TRUE;
+	int nodelay = 1;
 	int ret = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
 	if (ret == SOCKET_ERROR)
 	{
