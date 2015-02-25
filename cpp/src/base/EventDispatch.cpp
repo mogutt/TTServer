@@ -329,7 +329,15 @@ void CEventDispatch::StartDispatch()
 			CBaseSocket* pSocket = FindBaseSocket(ev_fd);
 			if (!pSocket)
 				continue;
-
+		
+                #ifdef EPOLLRDHUP
+                        if (events[i].events & EPOLLRDHUP)
+                        {
+                        	//log("On Peer Close, socket=%d, ev_fd);
+                        	pSocket->OnRead();
+                        }
+                #endif
+                
 			if (events[i].events & EPOLLIN)
 			{
 				//log("OnRead, socket=%d\n", ev_fd);
