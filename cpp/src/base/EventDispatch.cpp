@@ -334,7 +334,7 @@ void CEventDispatch::StartDispatch()
                         if (events[i].events & EPOLLRDHUP)
                         {
                         	//log("On Peer Close, socket=%d, ev_fd);
-                        	pSocket->OnRead();
+                        	pSocket->OnClose();
                         }
                 #endif
                 
