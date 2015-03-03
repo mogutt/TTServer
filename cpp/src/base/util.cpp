@@ -272,7 +272,7 @@ CStrExplode::CStrExplode(char* str, char seperator)
 	int idx = 0;
 	char* start = pos = str;
 	while (*pos) {
-		if (*pos == seperator) {
+		if (*pos == seperator && pos != start) {
 			uint32_t len = pos - start;
 			m_item_list[idx] = new char [len + 1];
 			strncpy(m_item_list[idx], start, len);
@@ -286,9 +286,11 @@ CStrExplode::CStrExplode(char* str, char seperator)
 	}
 
 	uint32_t len = pos - start;
-	m_item_list[idx] = new char [len + 1];
-	strncpy(m_item_list[idx], start, len);
-	m_item_list[idx][len]  = '\0';
+	if(len != 0){
+		m_item_list[idx] = new char [len + 1];
+		strncpy(m_item_list[idx], start, len);
+		m_item_list[idx][len]  = '\0';
+	} 
 }
 
 CStrExplode::~CStrExplode()
