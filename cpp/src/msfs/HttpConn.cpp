@@ -375,10 +375,19 @@ void  CHttpTask::OnDownload()
         {
             nTmpSize = File::getFileSize((char*)strPath.c_str());
             if(nTmpSize != -1)
-            {
-                char szResponseHeader[1024];
-                snprintf(szResponseHeader,sizeof(szResponseHeader), HTTP_RESPONSE_EXTEND, nTmpSize);
-                int nLen = strlen(szResponseHeader);
+	    {
+		    char szResponseHeader[1024];
+		    size_t nPos = strPath.find_last_of(".");
+		    string strType = strPath.substr(nPos + 1, strPath.length() - nPos);
+		    if(strType == "jpg" || strType == "JPG" || strType == "jpeg" || strType == "JPEG" || strType == "png" || strType == "PNG" || strType == "gif" || strType == "GIF")
+		    {
+			    snprintf(szResponseHeader, sizeof(szResponseHeader), HTTP_RESPONSE_IMAGE, nTmpSize, strType.c_str());
+		    }
+		    else
+		    {
+			    snprintf(szResponseHeader,sizeof(szResponseHeader), HTTP_RESPONSE_EXTEND, nTmpSize);
+		    }
+		    int nLen = strlen(szResponseHeader);
                 char* pContent = new char[nLen + nTmpSize];
                 memcpy(pContent, szResponseHeader, nLen);
                 g_fileManager->downloadFileByUrl((char*)m_strUrl.c_str(), pContent + nLen, &nFileSize);

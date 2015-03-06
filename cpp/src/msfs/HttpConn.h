@@ -43,6 +43,10 @@
                                     "Connection:close\r\n"\
                                     "Content-Length:%d\r\n"\
                                     "Content-Type:multipart/form-data\r\n\r\n"
+#define HTTP_RESPONSE_IMAGE         "HTTP/1.1 200 OK\r\n"\
+                                    "Connection:close\r\n"\
+                                    "Content-Length:%d\r\n"\
+                                    "Content-Type:image/%s\r\n\r\n"
 #define HTTP_RESPONSE_HTML          "HTTP/1.1 200 OK\r\n"\
                                     "Connection:close\r\n"\
                                     "Content-Length:%d\r\n"\
