@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.mogujie.ares.data.User;
 import com.mogujie.ares.lib.net.DataBuffer;
+import java.util.Iterator;
 
 /*
  * 蘑菇街IM工具类
@@ -26,7 +27,7 @@ public final class MoguUtil {
      * 判断是否是管理员
      */
     public boolean isAdmin(int type) {
-        return (type == 1) ? true : false;
+        return (type == 1);
     }
 
     /*
@@ -36,19 +37,14 @@ public final class MoguUtil {
      */
     public static int[] distinct(int[] array) {
         Set<Integer> intSet = new HashSet<Integer>();
-        int intVal;
-        int length = array.length;
-        for (int i = 0; i < length; i++) {
-            intVal = array[i];
-            if (!intSet.contains(intVal)) {
-                intSet.add(intVal);
-            }
+        for(int i = 0 ; i < array.length; i++){
+            intSet.add(array[i]);
         }
-        Integer[] uniqArray = new Integer[intSet.size()];
-        intSet.toArray(uniqArray);
-        int[] ints = new int[uniqArray.length];
-        for (int i = 0; i < uniqArray.length; i++) {
-            ints[i] = uniqArray[i];
+        int[] ints = new int[intSet.size()];
+        Iterator<Integer> iter = intSet.iterator();
+        int i = 0;
+        while(iter.hasNext()){
+            ints[i++] = iter.next();
         }
         return ints;
     }
@@ -59,20 +55,10 @@ public final class MoguUtil {
      * @param array 需要去重的数组
      */
     public static Map<Integer, Integer> distinctToMap(int[] array) {
-        Set<Integer> intSet = new HashSet<Integer>();
-        int intVal;
-        int length = array.length;
-        for (int i = 0; i < length; i++) {
-            intVal = array[i];
-            if (!intSet.contains(intVal)) {
-                intSet.add(intVal);
-            }
-        }
-        Integer[] uniqArray = new Integer[intSet.size()];
-        intSet.toArray(uniqArray);
+        int[] uniqArray = distinct(array);
         Map<Integer, Integer> mapIds = new HashMap<Integer, Integer>();
-        for (int i = 0; i < uniqArray.length; i++) {
-            mapIds.put(uniqArray[i], uniqArray[i]);
+        for (Integer uniqArray1 : uniqArray) {
+            mapIds.put(uniqArray1, uniqArray1);
         }
         return mapIds;
     }
@@ -96,13 +82,13 @@ public final class MoguUtil {
      * @parma number 参数个数
      */
     public static String getArgsHolder(String hoder, String split, int number) {
-        StringBuffer buffer = new StringBuffer("");
+        StringBuilder buffer = new StringBuilder();
         if (number <= 0) {
             return buffer.toString();
         }
 
         for (int i = 0; i < number; i++) {
-            buffer.append(split + hoder);
+            buffer.append(split).append(hoder);
         }
         return buffer.toString().substring(1);
 
@@ -116,11 +102,10 @@ public final class MoguUtil {
      * @throws NoSuchAlgorithmException
      */
     public static String md5(String str) throws NoSuchAlgorithmException {
-
         MessageDigest tool = MessageDigest.getInstance("MD5");
         tool.update(str.getBytes());
         byte[] bytes = tool.digest();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) { // 字节数组转换成十六进制字符串，形成最终的密文
             int v = bytes[i] & 0xff;
             if (v < 16) {

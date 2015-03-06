@@ -2,13 +2,13 @@ package com.mogujie.ares.util;
 
 public class MoguByteUtil {
 
-	private static MoguByteUtil instance = new MoguByteUtil();
+	private static MoguByteUtil instance;
 	
 	public static MoguByteUtil getInstance()
 	{
 		if(instance == null)
 		{
-			synchronized(instance) {
+			synchronized(MoguByteUtil.class) {
 				instance = new MoguByteUtil();
 			}
 		}
